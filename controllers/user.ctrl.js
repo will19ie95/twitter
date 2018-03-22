@@ -167,7 +167,7 @@ exports.addItem = function (req, res, next) {
     const newItem = new Item({
       username: username,
       content: content,
-      timestamp: moment().unix()
+      timestamp: date.Now()
     })
     newItem.save();
     return res.json({
@@ -214,6 +214,8 @@ exports.search = function(req, res, next) {
   if (req.user) {
     const timestamp = new Date(req.body.timestamp),
           limit = req.body.limit
+
+    console.log("TimeStamp: ", req.body.timestamp)
 
     // db.items.find({ timestamp: { $lte: ISODate("1970-01-18T14:41:26.259Z") } })
     if (timestamp instanceof Date) {
