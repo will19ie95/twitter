@@ -1,6 +1,7 @@
 var User = require("../models/user.model");
 var Item = require("../models/item.model");
-const db = require("../db")
+const db = require("../db");
+const shortId = require("shortid");
 const moment = require("moment");
 var passport = require("passport");
 
@@ -26,7 +27,8 @@ exports.addUser = function (req, res, next) {
     const newUser = new User({
       username: username,
       email: email,
-      password: password
+      password: password,
+      vToken: shortId.generate()
     })
     newUser.save();
     console.log(newUser)

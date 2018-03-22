@@ -36,7 +36,6 @@ const userSchema = new Schema({
   },
   vToken: {
     type: String,
-    default: shortId.generate()
   }
 });
 
