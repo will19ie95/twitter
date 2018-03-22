@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 var bcrypt = require("bcrypt-nodejs");
 var SALT_FACTOR = 10;
 var crypto = require("crypto");
+var shortId = require("shortid")
 
 function isEmail(email) {
   // regex check for email
@@ -35,7 +36,7 @@ const userSchema = new Schema({
   },
   vToken: {
     type: String,
-    default: crypto.randomBytes(64).toString('hex')
+    default: shortId.generate()
   }
 });
 
