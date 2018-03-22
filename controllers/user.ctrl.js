@@ -48,7 +48,7 @@ exports.addUser = function (req, res, next) {
       from: 'Twitter Clone👻 <no.reply.twitterClone@gmail.com>', // sender address
       to: email, // list of receivers
       subject: 'Hello From 👻Twitter Clone👻', // Subject line
-      text: newUser.vToken, // plaintext body
+      text: "verification key: " + newUser.vToken, // plaintext body
       // html: '<b>Hello world ?</b>' // html body
     };
 
