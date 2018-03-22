@@ -8,7 +8,7 @@ exports.connect = function (url, done) {
   if (state.db) return done()
 
   // DEFAULT mongo setting
-  var url = url || "mongodb://127.0.0.1:27017/demo";
+  var url = url || "mongodb://127.0.0.1:27017/twitter";
   var done = done || function (err) {
     if (err) {
       console.log("Error connecting to mongo");
