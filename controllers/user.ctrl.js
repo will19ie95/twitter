@@ -19,7 +19,7 @@ exports.addUser = function (req, res, next) {
     // check username in db
     if (user) {
       return res.status(404).json({
-        status: "ERROR",
+        status: "error",
         error: "Username is taken"
       })
     }
@@ -82,7 +82,7 @@ exports.verify = function (req, res, next) {
     if (!user) {
       // req.flash("error", "Username Not Found")
       return res.status(404).json({
-        status: "ERROR",
+        status: "error",
         error: "email not found"
       })
     }
@@ -91,7 +91,7 @@ exports.verify = function (req, res, next) {
     if (user.isVerified) {
       // req.flash("error", "Already Verified");
       return res.status(404).json({
-        status: "ERROR",
+        status: "error",
         error: "already verified"
       })
     }
@@ -112,7 +112,7 @@ exports.verify = function (req, res, next) {
     } else {
       // next()
       return res.json({
-        status: "ERROR",
+        status: "error",
         error: "error verifiying key"
       })
     }
@@ -121,7 +121,7 @@ exports.verify = function (req, res, next) {
 exports.login = function (req, res, next) {
   if (req.user) {
     return res.json({
-      status: "ERROR",
+      status: "error",
       error: "User already logged in"
     })
   } 
@@ -130,7 +130,7 @@ exports.login = function (req, res, next) {
     if (err) { return next(err); }
     if (!user) {
       return res.json({
-        status: "ERROR",
+        status: "error",
         error: info
       });
     }
@@ -152,7 +152,7 @@ exports.logout = function (req, res, next) {
     });
   } else {
     return res.json({
-      status: "ERROR",
+      status: "error",
       error: "No user logged in"
     });
   }
@@ -178,7 +178,7 @@ exports.addItem = function (req, res, next) {
     })
   } else {
     return res.status(404).json({
-      status: "ERROR",
+      status: "error",
       error: "Please LOGIN"
     })
   }
@@ -203,7 +203,7 @@ exports.getItem = function(req, res, next) {
 
   } else {
     return res.status(404).json({
-      status: "ERROR",
+      status: "error",
       error: "Please LOGIN"
     })
   }
@@ -229,7 +229,7 @@ exports.search = function(req, res, next) {
 
   } else {
     return res.status(404).json({
-      status: "ERROR",
+      status: "error",
       error: "Please LOGIN"
     })
   }
