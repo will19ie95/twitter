@@ -14,12 +14,6 @@ function isEmail(email) {
   );
 }
 
-var default_token = "abracadabra";
-
-crypto.randomBytes(48, function (err, buffer) {
-  default_token = buffer.toString('hex')
-})
-
 const userSchema = new Schema({
   email: {
     type: String,
@@ -41,16 +35,9 @@ const userSchema = new Schema({
   },
   vToken: {
     type: String,
-    default: default_token
+    default: crypto.randomBytes(64).toString('hex')
   }
 });
-
-// token valid for 6 hrs
-// const vTokenSchema = new Schema({
-//   _userId: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "User"},
-//   token: {type: String, required: true},
-//   createdAt: {type: Date, required: true, default: Date.now, expires: 21600}
-// });
 
 const noop = function () { };
 
@@ -69,8 +56,6 @@ userSchema.pre("save", function (done) {
         return done(err);
       }
       user.password = hashedPassword;
-      // give email verification token
-      user.vToken = default_token;
       done();
     });
   });

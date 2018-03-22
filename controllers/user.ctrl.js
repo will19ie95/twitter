@@ -29,6 +29,40 @@ exports.addUser = function (req, res, next) {
       password: password
     })
     newUser.save();
+    console.log(newUser)
+
+    // SEND VERIFICATION EMAIL 
+    const nodemailer = require("nodemailer");
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      auth: {
+        user: "no.reply.twitterClone",
+        pass: "will19ie95"
+      }
+    });
+
+    // setup e-mail data with unicode symbols
+    var mailOptions = {
+      from: 'Twitter Clone👻 <no.reply.twitterClone@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: 'Hello From 👻Twitter Clone👻', // Subject line
+      text: newUser.vToken, // plaintext body
+      // html: '<b>Hello world ?</b>' // html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Message sent: ' + info.response);
+    });
+
+
+
+
     return res.status(200).json({
       status: "OK",
       message: "Successfully created user"

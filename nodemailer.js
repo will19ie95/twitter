@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 // setup e-mail data with unicode symbols
 var mailOptions = {
   from: 'Twitter Clone👻 <no.reply.twitterClone@gmail.com>', // sender address
-  to: 'no.reply.twitterClone@gmail.com', // list of receivers
+  to: 'will19ie95@gmail.com', // list of receivers
   subject: 'Hello ✔', // Subject line
   text: 'Hello world ?', // plaintext body
   html: '<b>Hello world ?</b>' // html body
