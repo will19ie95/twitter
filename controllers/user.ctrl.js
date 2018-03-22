@@ -18,7 +18,7 @@ exports.addUser = function (req, res, next) {
     }
     // check username in db
     if (user) {
-      return res.status(404).json({
+      return res.json({
         status: "error",
         error: "Username is taken"
       })
@@ -65,7 +65,7 @@ exports.addUser = function (req, res, next) {
 
 
 
-    return res.status(200).json({
+    return res.json({
       status: "OK",
       message: "Successfully created user"
     })
@@ -81,7 +81,7 @@ exports.verify = function (req, res, next) {
     if (err) { return next(err) }
     if (!user) {
       // req.flash("error", "Username Not Found")
-      return res.status(404).json({
+      return res.json({
         status: "error",
         error: "email not found"
       })
@@ -90,7 +90,7 @@ exports.verify = function (req, res, next) {
     // check user is not alredy verified 
     if (user.isVerified) {
       // req.flash("error", "Already Verified");
-      return res.status(404).json({
+      return res.json({
         status: "error",
         error: "already verified"
       })
@@ -170,14 +170,14 @@ exports.addItem = function (req, res, next) {
       timestamp: moment().unix()
     })
     newItem.save();
-    return res.status(200).json({
+    return res.json({
       status: "OK",
       message: "Successfully created Item",
       id: newItem.id,
       timestamp: newItem.timestamp
     })
   } else {
-    return res.status(404).json({
+    return res.json({
       status: "error",
       error: "Please LOGIN"
     })
@@ -197,12 +197,12 @@ exports.getItem = function(req, res, next) {
         var data = {}
         data.item = item
         data.status = "OK"
-        return res.status(200).json(data)
+        return res.json(data)
       }
     })
 
   } else {
-    return res.status(404).json({
+    return res.json({
       status: "error",
       error: "Please LOGIN"
     })
@@ -221,14 +221,14 @@ exports.search = function(req, res, next) {
     // db.items.find({ timestamp: { $lte: ISODate("1970-01-18T14:41:26.259Z") } })
     Item.find({ timestamp: { $lte: new Date(timestamp)}}, function(err, items) {
       if (err) { return next(err) }
-      res.status(200).json({
+      res.json({
         status: "OK",
         items: items
       })
     })
 
   } else {
-    return res.status(404).json({
+    return res.json({
       status: "error",
       error: "Please LOGIN"
     })
