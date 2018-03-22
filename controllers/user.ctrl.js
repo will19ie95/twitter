@@ -212,7 +212,7 @@ exports.getItem = function(req, res, next) {
 exports.search = function(req, res, next) {
 
   if (req.user) {
-    const timestamp = moment().unix(req.body.timestamp),
+    const timestamp = moment.unix(req.body.timestamp),
           limit = req.body.limit
 
     console.log("TimeStamp: ", req.body.timestamp)
