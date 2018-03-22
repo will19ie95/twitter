@@ -167,7 +167,7 @@ exports.addItem = function (req, res, next) {
     const newItem = new Item({
       username: username,
       content: content,
-      timestamp: date.Now()
+      timestamp: Date.now()
     })
     newItem.save();
     return res.json({
