@@ -218,20 +218,20 @@ exports.search = function(req, res, next) {
     console.log("TimeStamp: ", req.body.timestamp)
 
     // db.items.find({ timestamp: { $lte: ISODate("1970-01-18T14:41:26.259Z") } })
-    if (timestamp instanceof Date) {
-      Item.find({ timestamp: { $lte: timestamp } }, function (err, items) {
-        if (err) { return next(err) }
-        res.json({
-          status: "OK",
-          items: items
-        })
-      })
-    } else {
+    // if (timestamp instanceof Date) {
+    Item.find({ timestamp: { $lte: timestamp } }, function (err, items) {
+      if (err) { return next(err) }
       res.json({
-        status: "error",
-        error: "Invalid timestamp"
+        status: "OK",
+        items: items
       })
-    }
+    })
+    // } else {
+    //   res.json({
+    //     status: "error",
+    //     error: "Invalid timestamp"
+    //   })
+    // }
 
     
 
