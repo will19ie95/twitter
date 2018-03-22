@@ -187,7 +187,6 @@ exports.addItem = function (req, res, next) {
 }
 exports.getItem = function(req, res, next) {
   // check user logged in
-  console.log("GETTING ITEM")
   if (req.user) {
     const id = req.params.id;
 
@@ -213,19 +212,26 @@ exports.getItem = function(req, res, next) {
 exports.search = function(req, res, next) {
 
   if (req.user) {
-    const timestamp = req.body.timestamp,
+    const timestamp = new Date(req.body.timestamp),
           limit = req.body.limit
 
-    // search for items before timestamp and earlier
-    Item.find()
     // db.items.find({ timestamp: { $lte: ISODate("1970-01-18T14:41:26.259Z") } })
-    Item.find({ timestamp: { $lte: new Date(timestamp)}}, function(err, items) {
-      if (err) { return next(err) }
-      res.json({
-        status: "OK",
-        items: items
+    if (timestamp instanceof Date) {
+      Item.find({ timestamp: { $lte: timestamp } }, function (err, items) {
+        if (err) { return next(err) }
+        res.json({
+          status: "OK",
+          items: items
+        })
       })
-    })
+    } else {
+      res.json({
+        status: "error",
+        error: "Invalid timestamp"
+      })
+    }
+
+    
 
   } else {
     return res.json({
