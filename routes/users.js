@@ -14,6 +14,6 @@ router.post("/logout", UserCtrl.logout)
 router.post("/additem", UserCtrl.addItem)
 router.post("/search", UserCtrl.search)
 
-router.get("/getitem/:id", UserCtrl.getItem)
+router.get("/item/:id", UserCtrl.getItem)
 
 module.exports = router;
