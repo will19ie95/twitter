@@ -4,6 +4,7 @@ var bcrypt = require("bcrypt-nodejs");
 var SALT_FACTOR = 10;
 var crypto = require("crypto");
 var shortId = require("shortid")
+var jwt = require('jsonwebtoken');
 
 function isEmail(email) {
   // regex check for email
@@ -39,10 +40,10 @@ const userSchema = new Schema({
   }
 });
 
-const noop = function () { };
 
 // hash password before saving
 userSchema.pre("save", function (done) {
+  const noop = function () { };
   const user = this;
   if (!user.isModified("password")) {
     return done();
@@ -73,7 +74,6 @@ userSchema.methods.verify = function (token) {
   }
   return this.isVerified;
 };
-
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

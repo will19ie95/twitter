@@ -4,74 +4,32 @@ const db = require("../db");
 const shortId = require("shortid");
 const moment = require("moment");
 var passport = require("passport");
-
+const nodemailer = require("../nodemailer");
 
 exports.addUser = function (req, res, next) {
-  const username = req.body.username,
-    email = req.body.email,
-    password = req.body.password;
+  const user = new User();
 
-  //check for existing user name
-  User.findOne({ username: username }, function (err, user) {
-    if (err) {
-      return next(err)
-    }
-    // check username in db
-    if (user) {
-      return res.json({
-        status: "error",
-        error: "Username is taken"
-      })
-    }
-    // create new user 
-    const newUser = new User({
-      username: username,
-      email: email,
-      password: password,
-      vToken: shortId.generate()
-    })
-    newUser.save();
-    console.log(newUser)
+  user.username = req.body.username;
+  user.email = req.body.email;
+  user.password = req.body.password;
+  user.vToken = shortId.generate()
 
-    // SEND VERIFICATION EMAIL 
-    const nodemailer = require("nodemailer");
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      auth: {
-        user: "no.reply.twitterClone",
-        pass: "will19ie95"
-      }
-    });
-
-    // setup e-mail data with unicode symbols
-    var mailOptions = {
-      from: 'Twitter Clone👻 <no.reply.twitterClone@gmail.com>', // sender address
-      to: email, // list of receivers
-      subject: 'Hello From 👻Twitter Clone👻', // Subject line
-      text: "validation key: <" + newUser.vToken + ">", // plaintext body
-      // html: '<b>Hello world ?</b>' // html body
-    };
-
-    // send mail with defined transport object
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        return console.log(error);
-      }
-      console.log('Message sent: ' + info.response);
-    });
-
-
-
-
+  user.save(function(err) {
+    if (err) { return res.json({
+      status: "error",
+      msg: "Failed to create user",
+      error: err
+    })}
+    nodemailer.sendMail(user.email, user.vToken);
     return res.json({
       status: "OK",
-      message: "Successfully created user"
+      message: "Successfully created user",
+      user: user
     })
   })
-  // res.send("not implemented")
+
 }
+
 exports.verify = function (req, res, next) {
   // check for get  query too.
   const email = req.body.email || req.query.email;
@@ -128,6 +86,8 @@ exports.login = function (req, res, next) {
 
   passport.authenticate('login', function (err, user, info) {
     if (err) { return next(err); }
+    var token;
+
     if (!user) {
       return res.json({
         status: "error",
@@ -138,7 +98,8 @@ exports.login = function (req, res, next) {
       if (err) { return next(err); }
       return res.json({
         status: "OK",
-        info: info
+        info: info,
+        user: req.user
       });
     });
   })(req, res, next);
@@ -148,7 +109,8 @@ exports.logout = function (req, res, next) {
   if (req.user) {
     req.logout();
     return res.json({
-      status: "OK"
+      status: "OK",
+      msg: "Logged Out"
     });
   } else {
     return res.json({
@@ -174,6 +136,7 @@ exports.addItem = function (req, res, next) {
       status: "OK",
       message: "Successfully created Item",
       id: newItem.id,
+      item: newItem,
       timestamp: newItem.timestamp
     })
   } else {

@@ -10,19 +10,25 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// setup e-mail data with unicode symbols
-var mailOptions = {
-  from: 'Twitter Clone👻 <no.reply.twitterClone@gmail.com>', // sender address
-  to: 'will19ie95@gmail.com', // list of receivers
-  subject: 'Hello ✔', // Subject line
-  text: 'Hello world ?', // plaintext body
-  html: '<b>Hello world ?</b>' // html body
-};
+const sendMail = function(email, vToken) {
+  // setup e-mail data with unicode symbols
+  var mailOptions = {
+    from: 'Twitter Clone👻 <no.reply.twitterClone@gmail.com>', // sender address
+    to: email, // email of client
+    subject: 'Hello From 👻Twitter Clone👻', // Subject line
+    text: "validation key: <" + vToken + ">", // plaintext body
+    html: '<b>Hello world ?</b>' // html body
+  };
 
-// send mail with defined transport object
-transporter.sendMail(mailOptions, function (error, info) {
-  if (error) {
-    return console.log(error);
-  }
-  console.log('Message sent: ' + info.response);
-});
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      return console.log(error);
+    }
+    console.log('Message sent: ' + info.response);
+  });
+}
+
+module.exports = {
+  sendMail: sendMail
+}
