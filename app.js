@@ -25,23 +25,13 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(
-//   session({
-//     secret: secret.mySecret,
-//     resave: true,
-//     cookie: { maxAge: 1000 * 60 * 60 * 24 },
-//     saveUninitialized: true
-//   })
-// );
+
 app.use(passport.initialize());
 // app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/', index);
-// app.use('/', users);
-// angular
 app.use('/api', users);
-// app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

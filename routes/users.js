@@ -9,31 +9,12 @@ var auth = jwt({
 });
 
 /* GET users listing. */
-router.get('/', auth, function(req, res, next) {
-  // res.send('respond with a resource');
-
-  if (!req.payload._id) {
-    res.json({
-      status: "error",
-      error: "UnauthorizedError: private profile"
-    });
-  } else {
-    User.findById(req.payload._id)
-      .exec(function (err, user) {
-        res.json({
-          status: "OK",
-          user: user
-        });
-      });
-  }
-});
+router.get('/', auth, UserCtrl.getUser);
 
 router.post('/adduser', UserCtrl.addUser)
 router.post("/verify", UserCtrl.verify)
 router.post("/login", UserCtrl.login)
-
-
-router.post("/logout", auth, UserCtrl.logout)
+// router.post("/logout", auth, UserCtrl.logout)
 router.post("/additem", auth, UserCtrl.addItem)
 router.post("/search", auth, UserCtrl.search)
 router.get("/item/:id", auth, UserCtrl.getItem)

@@ -109,6 +109,7 @@ exports.login = function (req, res, next) {
   })(req, res, next);
 
 }
+// deprecated due to JWT
 exports.logout = function (req, res, next) {
   if (req.user) {
     req.logout();
@@ -213,6 +214,7 @@ exports.search = function(req, res, next) {
 exports.getUser = function(req, res, next) {
   
   // const id = req.params.id;
+  console.log("Getting User with user: ", req.user);
   console.log("Getting User with payload: ", req.payload);
   if (!req.payload._id) {
     res.json({
@@ -227,11 +229,21 @@ exports.getUser = function(req, res, next) {
           status: "error",
           error: "Failed to find User"
         })}
+
+        userData = {
+          username: user.username,
+          email: user.email,
+          exp: user.exp,
+          iat: user.iat,
+          _id: user._id
+        }
+
         res.json({
           status: "OK",
           msg: "Found User",
-          user: user
+          user: userData
         });
+
       });
   }
 
