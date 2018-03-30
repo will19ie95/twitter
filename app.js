@@ -4,9 +4,10 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var session = require("express-session");
+// var session = require("express-session");
 var passport = require('./passport');
-var db = require('./db')
+var db = require('./db');
+const secret = require("./secret");
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -24,20 +25,20 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(
-  session({
-    secret: "water is life",
-    resave: true,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 },
-    saveUninitialized: true
-  })
-);
+// app.use(
+//   session({
+//     secret: secret.mySecret,
+//     resave: true,
+//     cookie: { maxAge: 1000 * 60 * 60 * 24 },
+//     saveUninitialized: true
+//   })
+// );
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/', users);
+// app.use('/', index);
+// app.use('/', users);
 // angular
 app.use('/api', users);
 // app.use('/users', users);

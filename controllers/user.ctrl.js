@@ -6,6 +6,7 @@ const moment = require("moment");
 var passport = require("passport");
 const nodemailer = require("../nodemailer");
 
+
 exports.addUser = function (req, res, next) {
   const user = new User();
 
@@ -20,16 +21,18 @@ exports.addUser = function (req, res, next) {
       msg: "Failed to create user",
       error: err
     })}
+    
+    // send vToken email verification
     nodemailer.sendMail(user.email, user.vToken);
     return res.json({
       status: "OK",
       message: "Successfully created user",
-      user: user
+      user: user,
+      vToken: user.vToken,
     })
   })
 
 }
-
 exports.verify = function (req, res, next) {
   // check for get  query too.
   const email = req.body.email || req.query.email;
@@ -86,8 +89,6 @@ exports.login = function (req, res, next) {
 
   passport.authenticate('login', function (err, user, info) {
     if (err) { return next(err); }
-    var token;
-
     if (!user) {
       return res.json({
         status: "error",
@@ -96,10 +97,13 @@ exports.login = function (req, res, next) {
     }
     req.logIn(user, function (err) {
       if (err) { return next(err); }
+      // generate jwt token
+      token = user.generateJwt();
       return res.json({
         status: "OK",
         info: info,
-        user: req.user
+        user: req.user,
+        token: token
       });
     });
   })(req, res, next);
@@ -171,7 +175,6 @@ exports.getItem = function(req, res, next) {
   }
 
 }
-
 exports.search = function(req, res, next) {
 
   if (req.user) {
@@ -205,5 +208,31 @@ exports.search = function(req, res, next) {
     })
   }
 
+
+}
+exports.getUser = function(req, res, next) {
+  
+  // const id = req.params.id;
+  console.log("Getting User with payload: ", req.payload);
+  if (!req.payload._id) {
+    res.json({
+      status: "error",
+      error: "Missing JWT Token",
+      msg: "UnauthorizedError: private profile"
+    });
+  } else {
+    User.findById(req.payload._id)
+      .exec(function (err, user) {
+        if (err) { res.json({
+          status: "error",
+          error: "Failed to find User"
+        })}
+        res.json({
+          status: "OK",
+          msg: "Found User",
+          user: user
+        });
+      });
+  }
 
 }

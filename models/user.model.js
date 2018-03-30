@@ -5,6 +5,7 @@ var SALT_FACTOR = 10;
 var crypto = require("crypto");
 var shortId = require("shortid")
 var jwt = require('jsonwebtoken');
+const secret = require("../secret");
 
 function isEmail(email) {
   // regex check for email
@@ -73,6 +74,18 @@ userSchema.methods.verify = function (token) {
     this.isVerified = true;
   }
   return this.isVerified;
+};
+
+userSchema.methods.generateJwt = function () {
+  var expiry = new Date();
+  expiry.setDate(expiry.getDate() + 7);
+
+  return jwt.sign({
+    _id: this._id,
+    email: this.email,
+    username: this.username,
+    exp: parseInt(expiry.getTime() / 1000),
+  }, secret.mySecret);
 };
 
 const User = mongoose.model("User", userSchema);
