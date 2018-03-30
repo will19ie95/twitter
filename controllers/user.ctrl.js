@@ -10,28 +10,46 @@ const nodemailer = require("../nodemailer");
 exports.addUser = function (req, res, next) {
   const user = new User();
 
-  user.username = req.body.username;
   user.email = req.body.email;
-  user.password = req.body.password;
-  user.vToken = shortId.generate()
 
-  user.save(function(err) {
-    if (err) { return res.json({
-      status: "error",
-      msg: "Failed to create user",
-      error: err
-    })}
-    
-    // send vToken email verification
-    nodemailer.sendMail(user.email, user.vToken);
-    return res.json({
-      status: "OK",
-      message: "Successfully created user",
-      user: user,
-      vToken: user.vToken,
-    })
-  })
-
+  User.findOne({ email: user.email }, function (err, user) {
+    if (err) {
+      return res.json({
+        status: "error",
+        message: "Failed to add user",
+        error: err
+      })
+    }
+    if (user) {
+      return res.json({
+        status: "error",
+        message: "Email already exists",
+      })
+    } else {
+      const newUser = new User();
+      newUser.username = req.body.username;
+      newUser.email = req.body.email;
+      newUser.password = req.body.password;
+      newUser.vToken = shortId.generate()
+      newUser.save(function (err) {
+        if (err) {
+          return res.json({
+            status: "error",
+            message: "Failed to save user",
+            error: err
+          })
+        }
+        // send vToken email verification
+        nodemailer.sendMail(newUser.email, newUser.vToken);
+        return res.json({
+          status: "OK",
+          message: "Successfully created user",
+          user: newUser,
+          vToken: newUser.vToken,
+        })
+      })
+    }
+  });
 }
 exports.verify = function (req, res, next) {
   // check for get  query too.
@@ -44,6 +62,7 @@ exports.verify = function (req, res, next) {
       // req.flash("error", "Username Not Found")
       return res.json({
         status: "error",
+        message: "email not found",
         error: "email not found"
       })
     }
@@ -53,6 +72,7 @@ exports.verify = function (req, res, next) {
       // req.flash("error", "Already Verified");
       return res.json({
         status: "error",
+        message: "already verified",
         error: "already verified"
       })
     }
@@ -74,7 +94,8 @@ exports.verify = function (req, res, next) {
       // next()
       return res.json({
         status: "error",
-        error: "error verifiying key"
+        message: "Key does not match",
+        error: "Key does not match"
       })
     }
   })
@@ -99,10 +120,16 @@ exports.login = function (req, res, next) {
       if (err) { return next(err); }
       // generate jwt token
       token = user.generateJwt();
+      // block some private user data
+      userData = {
+        username: user.username,
+        email: user.email,
+      }
+
       return res.json({
         status: "OK",
         info: info,
-        user: req.user,
+        user: userData,
         token: token
       });
     });
@@ -115,7 +142,7 @@ exports.logout = function (req, res, next) {
     req.logout();
     return res.json({
       status: "OK",
-      msg: "Logged Out"
+      message: "Logged Out"
     });
   } else {
     return res.json({
@@ -220,7 +247,7 @@ exports.getUser = function(req, res, next) {
     res.json({
       status: "error",
       error: "Missing JWT Token",
-      msg: "UnauthorizedError: private profile"
+      message: "UnauthorizedError: private profile"
     });
   } else {
     User.findById(req.payload._id)
@@ -240,7 +267,7 @@ exports.getUser = function(req, res, next) {
 
         res.json({
           status: "OK",
-          msg: "Found User",
+          message: "Found User",
           user: userData
         });
 
