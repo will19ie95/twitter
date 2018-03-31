@@ -22,8 +22,14 @@ app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// logger
 app.use(logger('dev'));
+
+// enable cross origin requests
 app.use(cors());
+app.options('*', cors()) // include before other routes
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
