@@ -153,32 +153,29 @@ exports.logout = function (req, res, next) {
 }
 exports.addItem = function (req, res, next) {
 
-  if(req.user) {
-    const username = req.user.username,
-      content = req.body.content;
+  // if(req.user) {
+  const username = req.body.username,
+        content = req.body.content;
 
-    // create new user 
-    const newItem = new Item({
-      username: username,
-      content: content,
-      timestamp: moment().unix()
-    })
-    newItem.save();
+  // create new user 
+  const newItem = new Item({
+    username: username,
+    content: content,
+    timestamp: moment().unix()
+  })
+  newItem.save(err => {
+    if (err) { return res.json({
+      status: "error",
+      error: "failed to save item",
+      message: "failed to save item"
+    })}
     return res.json({
       status: "OK",
       message: "Successfully created Item",
       id: newItem.id,
       item: newItem,
-      timestamp: newItem.timestamp
     })
-  } else {
-    return res.json({
-      status: "error",
-      error: "Please LOGIN"
-    })
-  }
-
-  
+  });
 }
 exports.getItem = function(req, res, next) {
   // check user logged in
