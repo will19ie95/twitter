@@ -9,7 +9,13 @@ var auth = jwt({
 });
 
 /* GET users listing. */
-router.get('/', auth, UserCtrl.getUser);
+router.get('/', function (req, res, next) {
+  res.render('index', { title: 'Express' });
+});
+router.get("/item/*", auth, UserCtrl.getItem) // /item/:id
+router.get("/item", auth, UserCtrl.getItem) // /item?id=
+router.get("/user", auth, UserCtrl.getUser)
+
 
 router.post('/adduser', UserCtrl.addUser)
 router.post("/verify", UserCtrl.verify)
@@ -17,7 +23,6 @@ router.post("/login", UserCtrl.login)
 // router.post("/logout", auth, UserCtrl.logout)
 router.post("/additem", auth, UserCtrl.addItem)
 router.post("/search", auth, UserCtrl.search)
-router.get("/item/:id", auth, UserCtrl.getItem)
-router.get("/user", auth, UserCtrl.getUser)
+
 
 module.exports = router;

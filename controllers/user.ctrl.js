@@ -178,27 +178,29 @@ exports.addItem = function (req, res, next) {
   });
 }
 exports.getItem = function(req, res, next) {
-  // check user logged in
-  if (req.user) {
-    const id = req.params.id;
+  
+  // query for /item?id=     params for /item/:id
+  const id = req.query.id || req.params[0];
 
-    Item.findOne({ id: id}, function(err, item) {
-      if (err) { return next(err) }
-      if (item) {
-        var data = {}
-        data.item = item
-        data.status = "OK"
-        return res.json(data)
-      }
+  Item.findOne({id: id}, function(err, item) {
+    if (err) { return next(err) }
+    if (item) {
+      var data = {}
+      data.item = item
+      data.status = "OK"
+      return res.json({
+        status: "OK",
+        message: "Item Found",
+        item: item
+      })
+    } else {
+      return res.json({
+        status: "error",
+        message: "Item with ID: <" + id + "> Not Found",
+        error: "Item with ID: <" + id + "> Not Found",
+      })
+    }
     })
-
-  } else {
-    return res.json({
-      status: "error",
-      error: "Please LOGIN"
-    })
-  }
-
 }
 exports.search = function(req, res, next) {
 
@@ -237,8 +239,6 @@ exports.search = function(req, res, next) {
 }
 exports.getUser = function(req, res, next) {
   
-  // const id = req.params.id;
-  console.log("Getting User with user: ", req.user);
   console.log("Getting User with payload: ", req.payload);
   if (!req.payload._id) {
     res.json({
