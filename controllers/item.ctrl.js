@@ -41,19 +41,55 @@ exports.getItem = function (req, res, next) {
 }
 exports.search = function (req, res, next) {
 
-  const timestamp = moment.unix(req.body.timestamp);
-  const limit = req.body.limit;
+  var username = req.payload.username
 
-  console.log("TimeStamp: ", req.body.timestamp)
+  var timestamp = moment().unix(req.body.timestamp) || moment().unix();
+  var query_string  = req.body.q
+  var username_filter = req.body.username
+  var only_following = req.body.following //default true
+  var limit = req.body.limit || 25; //default 25, max 100
 
-  Item.find({ timestamp: { $lte: timestamp } }, function (err, items) {
+  if (limit > 100) {
+    limit = 100 // max 100
+  }
+
+  if (only_following !== false) {
+    only_following = true; //default true
+  }
+  
+  // content: /query_string/i,
+  var query = { 
+    timestamp: { $lte: timestamp }
+  }
+
+  // append query regex for content if exist
+  if (query_string) {
+    query["content"] = {
+      "$regex": query_string,
+      "$options": "i" // ignore cases
+    }    
+  }
+  // append username constraint if exist
+  if (username_filter) {
+    query["username"] = username_filter
+  }
+  // append following constraint if exist
+  if (only_following) {
+    // find following for jwt user
+  }
+
+  console.log("Search Query: ", query);
+
+  Item.find(query, function (err, items) {
     if (err) { return next(err) }
+
+    console.log("Found: ", items)
 
     if (items) {
       res.json({
         status: "OK",
         message: "Found Items",
-        items: items
+        items: items.slice(0, limit)
       })
     } else {
       return res.next(new Error("No Items Found"))

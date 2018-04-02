@@ -18,18 +18,18 @@ router.get('/', function (req, res, next) {
 router.post("/login", UserCtrl.login)
 
 // USER
-router.get("/user/:username/followers", auth, UserCtrl.getFollowers)
-router.get("/user/:username/following", auth, UserCtrl.getFollowing)
-router.get("/user/:username", auth, UserCtrl.getUser)
+router.get("/user/:username/followers", UserCtrl.getFollowers)
+router.get("/user/:username/following", UserCtrl.getFollowing)
+router.get("/user/:username", UserCtrl.getUser)
 router.post("/follow", auth, UserCtrl.follow)
 router.post("/adduser", UserCtrl.addUser)
 router.post("/verify", UserCtrl.verify)
 
 // ITEM
-router.get("/item/:id", auth, ItemCtrl.getItem) // /item/:id
-router.get("/item", auth, ItemCtrl.getItem) // /item?id=    Support or nah?
-router.post("/additem", auth, ItemCtrl.addItem)
+router.get("/item/:id", ItemCtrl.getItem) // /item/:id
+router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 router.post("/search", auth, ItemCtrl.search)
+router.post("/additem", auth, ItemCtrl.addItem)
 
 
 module.exports = router;
