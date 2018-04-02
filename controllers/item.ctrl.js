@@ -1,4 +1,5 @@
 const Item = require("../models/item.model");
+const User = require("../models/user.model");
 const db = require("../db");
 const moment = require("moment");
 
@@ -41,11 +42,11 @@ exports.getItem = function (req, res, next) {
 }
 exports.search = function (req, res, next) {
 
-  var username = req.payload.username
+  const username = req.payload.username
 
-  var timestamp = moment().unix(req.body.timestamp) || moment().unix();
-  var query_string  = req.body.q
-  var username_filter = req.body.username
+  const timestamp = moment().unix(req.body.timestamp) || moment().unix();
+  const query_string  = req.body.q
+  const username_filter = req.body.username
   var only_following = req.body.following //default true
   var limit = req.body.limit || 25; //default 25, max 100
 
@@ -69,33 +70,71 @@ exports.search = function (req, res, next) {
       "$options": "i" // ignore cases
     }    
   }
-  // append username constraint if exist
-  if (username_filter) {
-    query["username"] = username_filter
-  }
-  // append following constraint if exist
+  
+
+  // if true, return post by jwt user following
   if (only_following) {
     // find following for jwt user
+    console.log("Here: ", username)
+    User.findOne({ username: req.payload.username }, function (err, user) {
+      // list of following, only return if match any of these
+      var following = user.following;
+
+      // append username constraint if exist
+      if (username_filter) {
+        // possible duplication, fix me
+        following.push(username_filter)
+      }
+
+      var following_filter = { $in: following }
+
+      query["username"] = following_filter
+
+      console.log("Search Query: ", query);
+      
+
+      Item.find(query, function (err, items) {
+        if (err) { return next(err) }
+        if (!items) { return next(new Error("No Items found")) }
+        if (items) {
+          res.json({
+            status: "OK",
+            message: "Found Items",
+            items: items.slice(0, limit)
+          })
+        } else {
+          return res.next(new Error("No Items Found"))
+        }
+      })
+    })
+  } else {
+    // append username constraint if exist
+    if (username_filter) {
+      query["username"] = {
+        $in: [
+          username_filter
+        ]
+      }
+    }
+    console.log("Search Query: ", query);
+    // only following is false, return all
+    Item.find(query, function (err, items) {
+      if (err) { return next(err) }
+      if (!items) { return next(new Error("No Items found")) }
+      if (items) {
+        res.json({
+          status: "OK",
+          message: "Found Items",
+          items: items.slice(0, limit)
+        })
+      } else {
+        return res.next(new Error("No Items Found"))
+      }
+    })
   }
 
-  console.log("Search Query: ", query);
 
-  Item.find(query, function (err, items) {
-    if (err) { return next(err) }
-
-    console.log("Found: ", items)
-
-    if (items) {
-      res.json({
-        status: "OK",
-        message: "Found Items",
-        items: items.slice(0, limit)
-      })
-    } else {
-      return res.next(new Error("No Items Found"))
-    }
-
-  })
+  
 
 }
 exports.deleteItem = function (req, res, next) {

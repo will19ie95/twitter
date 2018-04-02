@@ -42,7 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', users);
 
 app.use(errorHandlers.logErrors)
-app.use(errorHandlers.clientErrorHandler)
+// app.use(errorHandlers.clientErrorHandler)
 app.use(errorHandlers.errorHandler)
 
 // catch 404 and forward to error handler
