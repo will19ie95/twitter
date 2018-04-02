@@ -12,13 +12,7 @@ exports.addItem = function (req, res, next) {
     timestamp: moment().unix()
   })
   newItem.save(err => {
-    if (err) {
-      return res.json({
-        status: "error",
-        error: "failed to save item",
-        message: "failed to save item"
-      })
-    }
+    if (err) { return next(err) }
     return res.json({
       status: "OK",
       message: "Successfully created Item",
@@ -34,11 +28,7 @@ exports.getItem = function (req, res, next) {
     if (err) { return next(err) }
 
     if (!item) {
-      return res.json({
-        status: "error",
-        message: "Item with ID: <" + id + "> Not Found",
-        error: "Item with ID: <" + id + "> Not Found",
-      })
+      return next(new Error("Item with ID: <" + id + "> Not Found"))
     }
 
     return res.json({
@@ -66,11 +56,7 @@ exports.search = function (req, res, next) {
         items: items
       })
     } else {
-      res.json({
-        status: "error",
-        error: "No Items Found",
-        message: "No Items Found",
-      })
+      return res.next(new Error("No Items Found"))
     }
 
   })
@@ -81,13 +67,8 @@ exports.deleteItem = function (req, res, next) {
   const id = req.query.id || req.params[0];
 
   Item.deleteOne({ id: id }, function(err) {
-    if (err) {
-      return res.status(500).json({
-        status: "error",
-        error: "failed to DELETE item with id: " + id,
-        message: "failed to DELETE item with id: " + id
-      })
-    }
+    // NEEDS STATUS NOT 2XX
+    if (err) { res.next(err) }
     
     return res.status(200).json({
       status: "200 OK",
