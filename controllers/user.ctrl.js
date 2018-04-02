@@ -7,19 +7,13 @@ const nodemailer = require("../nodemailer");
 
 exports.login = function (req, res, next) {
   if (req.user) {
-    return res.json({
-      status: "error",
-      error: "User already logged in"
-    })
+    return next(new Error("User already logged in"))
   } 
 
   passport.authenticate('login', function (err, user, info) {
     if (err) { return next(err); }
     if (!user) {
-      return res.json({
-        status: "error",
-        error: info
-      });
+      return next(new Error(info))
     }
     req.logIn(user, function (err) {
       if (err) { return next(err); }
@@ -50,10 +44,7 @@ exports.logout = function (req, res, next) {
       message: "Logged Out"
     });
   } else {
-    return res.json({
-      status: "error",
-      error: "No user logged in"
-    });
+    return next(new Error("No user logged in"))
   }
 }
 exports.addUser = function (req, res, next) {
@@ -62,18 +53,9 @@ exports.addUser = function (req, res, next) {
   user.email = req.body.email;
 
   User.findOne({ email: user.email }, function (err, user) {
-    if (err) {
-      return res.json({
-        status: "error",
-        message: "Failed to add user",
-        error: err
-      })
-    }
+    if (err) { return next(err) }
     if (user) {
-      return res.json({
-        status: "error",
-        message: "Email already exists",
-      })
+      return next(new Error("Email already exists!"))
     } else {
       const newUser = new User();
       newUser.username = req.body.username;
@@ -81,13 +63,7 @@ exports.addUser = function (req, res, next) {
       newUser.password = req.body.password;
       newUser.vToken = shortId.generate()
       newUser.save(function (err) {
-        if (err) {
-          return res.json({
-            status: "error",
-            message: "Failed to save user",
-            error: err
-          })
-        }
+        if (err) { return next(err) }
         // send vToken email verification
         nodemailer.sendMail(newUser.email, newUser.vToken);
         return res.json({
@@ -108,26 +84,12 @@ exports.verify = function (req, res, next) {
   User.findOne({ email: email }, function (err, user) {
     if (err) { return next(err) }
     if (!user) {
-      // req.flash("error", "Username Not Found")
-      return res.json({
-        status: "error",
-        message: "email not found",
-        error: "email not found"
-      })
+      return next(new Error("Email not found"))
     }
-
     // check user is not alredy verified 
     if (user.isVerified) {
-      // req.flash("error", "Already Verified");
-      return res.json({
-        status: "error",
-        message: "already verified",
-        error: "already verified"
-      })
+      return next(new Error("User is already verified"))
     }
-    console.log(email)
-    console.log(key)
-
     if (key === "abracadabra" || key === user.vToken) {
       user.isVerified = true;
       user.save(function (err, updatedUser) {
@@ -140,12 +102,7 @@ exports.verify = function (req, res, next) {
         })
       })
     } else {
-      // next()
-      return res.json({
-        status: "error",
-        message: "Key does not match",
-        error: "Key does not match"
-      })
+      return next(new Error("Key does not match"))
     }
   })
 }
@@ -156,11 +113,7 @@ exports.getUser = function (req, res, next) {
     if (err) { return next(err) }
 
     if (!user) {
-      return res.json({
-        status: "error",
-        error: "User with username: <" + username + "> Not Found",
-        message: "User with username: <" + username + "> Not Found"
-      })
+      return next(new Error("User with username: <" + username + "> Not Found"))
     }
 
     // hide password and other info
@@ -188,11 +141,7 @@ exports.getFollowers = function(req, res, next) {
     if (err) { return next(err) }
 
     if (!user) {
-      return res.json({
-        status: "error",
-        error: "User with username: <" + username + "> Not Found",
-        message: "User with username: <" + username + "> Not Found"
-      })
+      return next(new Error("User with username: <" + username + "> Not Found"))
     }
 
     return res.json({
@@ -210,11 +159,7 @@ exports.getFollowing = function (req, res, next) {
     if (err) { return next(err) }
 
     if (!user) {
-      return res.json({
-        status: "error",
-        error: "User with username: <" + username + "> Not Found",
-        message: "User with username: <" + username + "> Not Found"
-      })
+      return next(new Error("User with username: <" + username + "> Not Found"))
     }
 
     return res.json({
@@ -233,12 +178,12 @@ exports.follow = function(req, res, next) {
   const username = req.payload.username; 
   const _id = req.payload._id; //get _id from jwt
 
+  if (username_to_follow === username && follow) {
+    return next(new Error("you cant follow yourself. loser. LOL. JK."));
+  }
+
   if (!_id) {
-    res.json({
-      status: "error",
-      error: "Missing JWT Token",
-      message: "UnauthorizedError: private profile"
-    });
+    return next(new Error("UnauthorizedError: Bad JWT Token"));
   } else {
     const query = { _id: _id };
     const update = follow ? { $push: { following: username_to_follow } } : { $pull: { following: username_to_follow } };
@@ -246,19 +191,12 @@ exports.follow = function(req, res, next) {
     // update current user
     User.findOneAndUpdate(query, update, options, function(err, user) {
       if (err) {
-        return res.json({
-          status: "error",
-          error: "Failed to followed/unfollowed user: " + username_to_follow,
-          message: "Failed to followed/unfollowed user: " + username_to_follow
-        })
+        return next(new Error("Failed to followed/unfollowed user: " + username_to_follow))
       }
       if (!user) {
-        return res.json({
-          status: "error",
-          error: "User with username: <" + username + "> Not Found",
-          message: "User with username: <" + username + "> Not Found"
-        })
+        return next(new Error("User with username: <" + username + "> Not Found"));
       }
+
       // update the other user
       const query_2 = { username: username_to_follow };
       const update_2 = follow ? { $push: { followers: username } } : { $pull: { followers: username } };
@@ -266,25 +204,12 @@ exports.follow = function(req, res, next) {
 
       User.findOneAndUpdate(query_2, update_2, options, function(err, user) {
         
-        if (err) {
-          return res.json({
-            status: "error",
-            error: "Failed to followed/unfollowed user: " + username_to_follow,
-            message: "Failed to followed/unfollowed user: " + username_to_follow,
-            err: err
-          })
-        } 
-        
+        if (err) {return next(err)} 
 
         if (!user) {
-          return res.json({
-            status: "error",
-            error: "User with username: <" + username_to_follow + "> Not Found",
-            message: "User with username: <" + username_to_follow + "> Not Found"
-          })
+          return next(new Error("User with username: <" + username_to_follow + "> Not Found"))
         } else { 
           console.log("updated 2 ", user)
-          
           return res.json({
             status: "OK",
             message: "Successfully followed/unfollowed " + username_to_follow
@@ -292,47 +217,6 @@ exports.follow = function(req, res, next) {
         }
       })
     })
-
-    // User.findOne(query, (err, user) => {
-    //   if (err) {
-    //     return res.json({
-    //       status: "error",
-    //       error: "Failed to followed/unfollowed user: " + username_to_follow,
-    //       message: "Failed to followed/unfollowed user: " + username_to_follow
-    //     })
-    //   }
-
-    //   if (!user) {
-    //     return res.json({
-    //       status: "error",
-    //       error: "User with username: <" + username + "> Not Found",
-    //       message: "User with username: <" + username + "> Not Found"
-    //     })
-    //   }
-
-    //   if (follow === true) {
-    //     console.log("push", follow, req.body.follow)
-    //     user.following.push(username_to_follow)
-    //   } else {
-    //     console.log("pull", follow, req.body.follow)
-    //     user.following.pull(username_to_follow)
-    //   }
-
-    //   user.save(function (err) {
-    //     if (err) {
-    //       return res.json({
-    //         status: "error",
-    //         error: "Failed to followed/unfollowed user: " + username_to_follow,
-    //         message: "Failed to followed/unfollowed user: " + username_to_follow
-    //       })
-    //     } else {
-    //       return res.json({
-    //         status: "OK",
-    //         message: "Successfully followed/unfollowed user: " + username_to_follow,
-    //       })
-    //     }
-    //   });
-    // })
 
   }
 
