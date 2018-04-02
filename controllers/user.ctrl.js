@@ -241,9 +241,59 @@ exports.follow = function(req, res, next) {
     });
   } else {
     const query = { _id: _id };
-    // const update = follow ? { $push: { following: username_to_follow } } : { $pull: { following: username_to_follow } };
+    const update = follow ? { $push: { following: username_to_follow } } : { $pull: { following: username_to_follow } };
+    const options = { new: true }
+    // update current user
+    User.findOneAndUpdate(query, update, options, function(err, user) {
+      if (err) {
+        return res.json({
+          status: "error",
+          error: "Failed to followed/unfollowed user: " + username_to_follow,
+          message: "Failed to followed/unfollowed user: " + username_to_follow
+        })
+      }
+      if (!user) {
+        return res.json({
+          status: "error",
+          error: "User with username: <" + username + "> Not Found",
+          message: "User with username: <" + username + "> Not Found"
+        })
+      }
+      // update the other user
+      const query_2 = { username: username_to_follow };
+      const update_2 = follow ? { $push: { followers: username } } : { $pull: { followers: username } };
+      const options = { new: true }
 
-    // User.findOneAndUpdate(query, update, function(err) {
+      User.findOneAndUpdate(query_2, update_2, options, function(err, user) {
+        
+        if (err) {
+          return res.json({
+            status: "error",
+            error: "Failed to followed/unfollowed user: " + username_to_follow,
+            message: "Failed to followed/unfollowed user: " + username_to_follow,
+            err: err
+          })
+        } 
+        
+
+        if (!user) {
+          return res.json({
+            status: "error",
+            error: "User with username: <" + username_to_follow + "> Not Found",
+            message: "User with username: <" + username_to_follow + "> Not Found"
+          })
+        } else { 
+          console.log("updated 2 ", user)
+          
+          return res.json({
+            status: "OK",
+            message: "Successfully followed/unfollowed " + username_to_follow
+          })
+        }
+      })
+    })
+
+    // User.findOne(query, (err, user) => {
     //   if (err) {
     //     return res.json({
     //       status: "error",
@@ -252,53 +302,37 @@ exports.follow = function(req, res, next) {
     //     })
     //   }
 
-    //   return res.json({
-    //     status: "OK",
-    //     message: "Successfully followed/unfollowed " + username_to_follow
-    //   })
-      
+    //   if (!user) {
+    //     return res.json({
+    //       status: "error",
+    //       error: "User with username: <" + username + "> Not Found",
+    //       message: "User with username: <" + username + "> Not Found"
+    //     })
+    //   }
+
+    //   if (follow === true) {
+    //     console.log("push", follow, req.body.follow)
+    //     user.following.push(username_to_follow)
+    //   } else {
+    //     console.log("pull", follow, req.body.follow)
+    //     user.following.pull(username_to_follow)
+    //   }
+
+    //   user.save(function (err) {
+    //     if (err) {
+    //       return res.json({
+    //         status: "error",
+    //         error: "Failed to followed/unfollowed user: " + username_to_follow,
+    //         message: "Failed to followed/unfollowed user: " + username_to_follow
+    //       })
+    //     } else {
+    //       return res.json({
+    //         status: "OK",
+    //         message: "Successfully followed/unfollowed user: " + username_to_follow,
+    //       })
+    //     }
+    //   });
     // })
-
-    User.findOne(query, (err, user) => {
-      if (err) {
-        return res.json({
-          status: "error",
-          error: "Failed to followed/unfollowed user: " + username_to_follow,
-          message: "Failed to followed/unfollowed user: " + username_to_follow
-        })
-      }
-
-      if (!user) {
-        return res.json({
-          status: "error",
-          error: "User with username: <" + username + "> Not Found",
-          message: "User with username: <" + username + "> Not Found"
-        })
-      }
-
-      if (follow === true) {
-        console.log("push", follow, req.body.follow)
-        user.following.push(username_to_follow)
-      } else {
-        console.log("pull", follow, req.body.follow)
-        user.following.pull(username_to_follow)
-      }
-
-      user.save(function (err) {
-        if (err) {
-          return res.json({
-            status: "error",
-            error: "Failed to followed/unfollowed user: " + username_to_follow,
-            message: "Failed to followed/unfollowed user: " + username_to_follow
-          })
-        } else {
-          return res.json({
-            status: "OK",
-            message: "Successfully followed/unfollowed user: " + username_to_follow,
-          })
-        }
-      });
-    })
 
   }
 
