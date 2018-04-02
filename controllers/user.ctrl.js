@@ -1,12 +1,61 @@
-var User = require("../models/user.model");
-var Item = require("../models/item.model");
+const User = require("../models/user.model");
 const db = require("../db");
 const shortId = require("shortid");
 const moment = require("moment");
-var passport = require("passport");
+const passport = require("passport");
 const nodemailer = require("../nodemailer");
 
+exports.login = function (req, res, next) {
+  if (req.user) {
+    return res.json({
+      status: "error",
+      error: "User already logged in"
+    })
+  } 
 
+  passport.authenticate('login', function (err, user, info) {
+    if (err) { return next(err); }
+    if (!user) {
+      return res.json({
+        status: "error",
+        error: info
+      });
+    }
+    req.logIn(user, function (err) {
+      if (err) { return next(err); }
+      // generate jwt token
+      token = user.generateJwt();
+      // block some private user data
+      userData = {
+        username: user.username,
+        email: user.email,
+      }
+
+      return res.json({
+        status: "OK",
+        info: info,
+        user: userData,
+        token: token
+      });
+    });
+  })(req, res, next);
+
+}
+// deprecated due to JWT
+exports.logout = function (req, res, next) {
+  if (req.user) {
+    req.logout();
+    return res.json({
+      status: "OK",
+      message: "Logged Out"
+    });
+  } else {
+    return res.json({
+      status: "error",
+      error: "No user logged in"
+    });
+  }
+}
 exports.addUser = function (req, res, next) {
   const user = new User();
 
@@ -100,175 +149,157 @@ exports.verify = function (req, res, next) {
     }
   })
 }
-exports.login = function (req, res, next) {
-  if (req.user) {
-    return res.json({
-      status: "error",
-      error: "User already logged in"
-    })
-  } 
+exports.getUser = function (req, res, next) {
+  const username = req.query.username || req.params['username'];
+  
+  User.findOne({ username: username }, function (err, user) {
+    if (err) { return next(err) }
 
-  passport.authenticate('login', function (err, user, info) {
-    if (err) { return next(err); }
     if (!user) {
       return res.json({
         status: "error",
-        error: info
-      });
-    }
-    req.logIn(user, function (err) {
-      if (err) { return next(err); }
-      // generate jwt token
-      token = user.generateJwt();
-      // block some private user data
-      userData = {
-        username: user.username,
-        email: user.email,
-      }
-
-      return res.json({
-        status: "OK",
-        info: info,
-        user: userData,
-        token: token
-      });
-    });
-  })(req, res, next);
-
-}
-// deprecated due to JWT
-exports.logout = function (req, res, next) {
-  if (req.user) {
-    req.logout();
-    return res.json({
-      status: "OK",
-      message: "Logged Out"
-    });
-  } else {
-    return res.json({
-      status: "error",
-      error: "No user logged in"
-    });
-  }
-}
-exports.addItem = function (req, res, next) {
-
-  // if(req.user) {
-  const username = req.body.username,
-        content = req.body.content;
-
-  // create new user 
-  const newItem = new Item({
-    username: username,
-    content: content,
-    timestamp: moment().unix()
-  })
-  newItem.save(err => {
-    if (err) { return res.json({
-      status: "error",
-      error: "failed to save item",
-      message: "failed to save item"
-    })}
-    return res.json({
-      status: "OK",
-      message: "Successfully created Item",
-      id: newItem.id,
-      item: newItem,
-    })
-  });
-}
-exports.getItem = function(req, res, next) {
-  
-  // query for /item?id=     params for /item/:id
-  const id = req.query.id || req.params[0];
-
-  Item.findOne({id: id}, function(err, item) {
-    if (err) { return next(err) }
-    if (item) {
-      var data = {}
-      data.item = item
-      data.status = "OK"
-      return res.json({
-        status: "OK",
-        message: "Item Found",
-        item: item
+        error: "User with username: <" + username + "> Not Found",
+        message: "User with username: <" + username + "> Not Found"
       })
-    } else {
+    }
+
+    // hide password and other info
+    let user_data = {
+      email: user.email,
+      followers: user.followers.length,
+      following: user.following.length,
+    };
+
+    return res.json({
+      status: "OK",
+      message: "Found User",
+      user: user_data
+    })
+
+  })
+
+  
+}
+exports.getFollowers = function(req, res, next) {
+  const username = req.params['username'];
+  const limit = req.body['limit'] || 50;
+  
+  User.findOne({ username: username }, function(err, user) {
+    if (err) { return next(err) }
+
+    if (!user) {
       return res.json({
         status: "error",
-        message: "Item with ID: <" + id + "> Not Found",
-        error: "Item with ID: <" + id + "> Not Found",
+        error: "User with username: <" + username + "> Not Found",
+        message: "User with username: <" + username + "> Not Found"
       })
     }
-    })
-}
-exports.search = function(req, res, next) {
 
-  if (req.user) {
-    const timestamp = moment.unix(req.body.timestamp),
-          limit = req.body.limit
-
-    console.log("TimeStamp: ", req.body.timestamp)
-
-    // db.items.find({ timestamp: { $lte: ISODate("1970-01-18T14:41:26.259Z") } })
-    // if (timestamp instanceof Date) {
-    Item.find({ timestamp: { $lte: timestamp } }, function (err, items) {
-      if (err) { return next(err) }
-      res.json({
-        status: "OK",
-        items: items
-      })
-    })
-    // } else {
-    //   res.json({
-    //     status: "error",
-    //     error: "Invalid timestamp"
-    //   })
-    // }
-
-    
-
-  } else {
     return res.json({
-      status: "error",
-      error: "Please LOGIN"
+      status: "OK",
+      message: "Found list of followers for:" + username,
+      users: user.followers
     })
-  }
-
-
+  })
 }
-exports.getUser = function(req, res, next) {
-  
-  console.log("Getting User with payload: ", req.payload);
-  if (!req.payload._id) {
+exports.getFollowing = function (req, res, next) {
+  const username = req.params['username'];
+  const limit = req.body['limit'] || 50;
+
+  User.findOne({ username: username }, function (err, user) {
+    if (err) { return next(err) }
+
+    if (!user) {
+      return res.json({
+        status: "error",
+        error: "User with username: <" + username + "> Not Found",
+        message: "User with username: <" + username + "> Not Found"
+      })
+    }
+
+    return res.json({
+      status: "OK",
+      message: "Found list of followings for:" + username,
+      users: user.following
+    })
+  })
+}
+exports.follow = function(req, res, next) {
+  const username_to_follow = req.body.username;
+  const follow = req.body.follow; // If false then unfollow
+  if (follow === null) {
+    follow = true;
+  }
+  const username = req.payload.username; 
+  const _id = req.payload._id; //get _id from jwt
+
+  if (!_id) {
     res.json({
       status: "error",
       error: "Missing JWT Token",
       message: "UnauthorizedError: private profile"
     });
   } else {
-    User.findById(req.payload._id)
-      .exec(function (err, user) {
-        if (err) { res.json({
+    const query = { _id: _id };
+    // const update = follow ? { $push: { following: username_to_follow } } : { $pull: { following: username_to_follow } };
+
+    // User.findOneAndUpdate(query, update, function(err) {
+    //   if (err) {
+    //     return res.json({
+    //       status: "error",
+    //       error: "Failed to followed/unfollowed user: " + username_to_follow,
+    //       message: "Failed to followed/unfollowed user: " + username_to_follow
+    //     })
+    //   }
+
+    //   return res.json({
+    //     status: "OK",
+    //     message: "Successfully followed/unfollowed " + username_to_follow
+    //   })
+      
+    // })
+
+    User.findOne(query, (err, user) => {
+      if (err) {
+        return res.json({
           status: "error",
-          error: "Failed to find User"
-        })}
+          error: "Failed to followed/unfollowed user: " + username_to_follow,
+          message: "Failed to followed/unfollowed user: " + username_to_follow
+        })
+      }
 
-        userData = {
-          username: user.username,
-          email: user.email,
-          exp: user.exp,
-          iat: user.iat,
-          _id: user._id
+      if (!user) {
+        return res.json({
+          status: "error",
+          error: "User with username: <" + username + "> Not Found",
+          message: "User with username: <" + username + "> Not Found"
+        })
+      }
+
+      if (follow === true) {
+        console.log("push", follow, req.body.follow)
+        user.following.push(username_to_follow)
+      } else {
+        console.log("pull", follow, req.body.follow)
+        user.following.pull(username_to_follow)
+      }
+
+      user.save(function (err) {
+        if (err) {
+          return res.json({
+            status: "error",
+            error: "Failed to followed/unfollowed user: " + username_to_follow,
+            message: "Failed to followed/unfollowed user: " + username_to_follow
+          })
+        } else {
+          return res.json({
+            status: "OK",
+            message: "Successfully followed/unfollowed user: " + username_to_follow,
+          })
         }
-
-        res.json({
-          status: "OK",
-          message: "Found User",
-          user: userData
-        });
-
       });
+    })
+
   }
 
 }

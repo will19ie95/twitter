@@ -38,7 +38,9 @@ const userSchema = new Schema({
   },
   vToken: {
     type: String,
-  }
+  },
+  followers: [{ type: String, unique: true }],
+  following: [{ type: String, unique: true }]
 });
 
 
