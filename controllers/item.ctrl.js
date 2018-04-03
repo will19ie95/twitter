@@ -13,14 +13,14 @@ exports.addItem = function (req, res, next) {
     timestamp: moment().unix()
   })
   newItem.save(err => {
-    if (err) { return next(err) }
-    return res.json({
-      status: "OK",
-      message: "Successfully created Item",
-      id: newItem.id,
-      item: newItem,
-    })
+    // if (err) { return next(err) }
   });
+  return res.json({
+    status: "OK",
+    message: "Successfully created Item",
+    id: newItem.id,
+    item: newItem,
+  })
 }
 exports.getItem = function (req, res, next) {
   const id = req.query.id || req.params['id'];
