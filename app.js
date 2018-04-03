@@ -23,9 +23,6 @@ app.set('view engine', 'hbs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
-// logger
-app.use(logger('dev'));
-
 // enable cross origin requests
 app.use(cors());
 app.options('*', cors()) // include before other routes
@@ -37,6 +34,14 @@ app.use(cookieParser());
 app.use(passport.initialize());
 // app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(logger('dev'));
+
+app.use(function(req, res, next) {
+  console.log("BODY", req.body)
+  console.log("Query", req.query)
+  next()
+})
 
 // app.use('/', index);
 app.use('/api', users);
