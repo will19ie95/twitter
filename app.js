@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 
 app.use(function(req, res, next) {
-  // DEBUG
+  console.log("BODY", req.body)
   next()
 })
 

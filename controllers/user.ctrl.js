@@ -207,7 +207,6 @@ exports.follow = function(req, res, next) {
         if (!user) {
           return next(new Error("User with username: <" + username_to_follow + "> Not Found"))
         } else { 
-          console.log("updated 2 ", user)
           return res.json({
             status: "OK",
             message: "Successfully followed/unfollowed " + username_to_follow
