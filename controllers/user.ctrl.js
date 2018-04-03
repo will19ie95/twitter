@@ -13,7 +13,7 @@ exports.login = function (req, res, next) {
   passport.authenticate('login', function (err, user, info) {
     if (err) { return next(err); }
     if (!user) {
-      return next(new Error(info))
+      return next(info)
     }
     req.logIn(user, function (err) {
       if (err) { return next(err); }
