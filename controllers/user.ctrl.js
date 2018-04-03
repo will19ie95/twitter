@@ -6,10 +6,6 @@ const passport = require("passport");
 const nodemailer = require("../nodemailer");
 
 exports.login = function (req, res, next) {
-  if (req.user) {
-    return next(new Error("User already logged in"))
-  } 
-
   passport.authenticate('login', function (err, user, info) {
     if (err) { return next(err); }
     if (!user) {

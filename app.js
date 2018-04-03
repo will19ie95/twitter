@@ -39,7 +39,6 @@ app.use(logger('dev'));
 
 app.use(function(req, res, next) {
   console.log("BODY", req.body)
-  console.log("Query", req.query)
   next()
 })
 
