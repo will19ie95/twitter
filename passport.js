@@ -14,14 +14,14 @@ passport.deserializeUser(function (id, done) {
 });
 
 passport.use("login", new LocalStrategy({
-  usernameField: "email",
+  usernameField: "username",
   passwordField: "password"
 },
-  function (email, password, done) {
-    User.findOne({ email: email }, function (err, user) {
+  function (username, password, done) {
+    User.findOne({ username: username }, function (err, user) {
       if (err) { return done(err) }
       if (!user) {
-        return done(null, false, { message: "email not found" })
+        return done(null, false, { message: "username not found" })
       }
       if (!user.isVerified) {
         return done(null, false, { message: "User is not verified" })
@@ -31,7 +31,7 @@ passport.use("login", new LocalStrategy({
         if (isMatch) {
           return done(null, user)
         } else {
-          return done(null, false, { message: "Invalid Password/Email" })
+          return done(null, false, { message: "Invalid Password/Username" })
         }
       })
     })
