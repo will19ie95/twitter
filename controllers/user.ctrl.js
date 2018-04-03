@@ -21,6 +21,7 @@ exports.login = function (req, res, next) {
         email: user.email,
       }
 
+      res.cookie('twitter-jwt', token);
       return res.json({
         status: "OK",
         info: info,
@@ -166,6 +167,8 @@ exports.getFollowing = function (req, res, next) {
   })
 }
 exports.follow = function(req, res, next) {
+  console.log("Cookie: ", req.cookie)
+
   const username_to_follow = req.body.username;
   const follow = req.body.follow; // If false then unfollow
   if (follow === null) {
