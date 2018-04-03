@@ -43,7 +43,7 @@ app.use(function(req, res, next) {
   next()
 })
 
-// app.use('/', index);
+app.use('/', users);
 app.use('/api', users);
 
 app.use(errorHandlers.logErrors)
