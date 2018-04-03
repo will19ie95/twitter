@@ -170,6 +170,7 @@ exports.follow = function(req, res, next) {
   if (follow === null) {
     follow = true;
   }
+  
   // const username = req.payload.username; 
   // const _id = req.payload._id; //get _id from jwt
   const username = req.user.username;

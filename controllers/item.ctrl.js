@@ -42,7 +42,8 @@ exports.getItem = function (req, res, next) {
 }
 exports.search = function (req, res, next) {
 
-  const username = req.payload.username
+  // const username = req.payload.username
+  const username = req.user.username
 
   const timestamp = moment().unix(req.body.timestamp) || moment().unix();
   const query_string  = req.body.q
@@ -75,7 +76,7 @@ exports.search = function (req, res, next) {
   // if true, return post by jwt user following
   if (only_following) {
     // find following for jwt user
-    User.findOne({ username: req.payload.username }, function (err, user) {
+    User.findOne({ username: req.user.username }, function (err, user) {
       // list of following, only return if match any of these
       var following = user.following;
 
