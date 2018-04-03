@@ -4,7 +4,7 @@ const db = require("../db");
 const moment = require("moment");
 
 exports.addItem = function (req, res, next) {
-  const username = req.body.username;
+  const username = req.user.username;
   const content = req.body.content;
 
   const newItem = new Item({
