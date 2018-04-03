@@ -91,9 +91,6 @@ exports.verify = function (req, res, next) {
       user.isVerified = true;
       user.save(function (err, updatedUser) {
         if (err) { return next(err) }
-        console.log("user verified")
-        // req.flash("info", "Thank You for Verifying.")
-        // return res.redirect("/");
         return res.json({
           status: "OK"
         })
@@ -167,15 +164,16 @@ exports.getFollowing = function (req, res, next) {
   })
 }
 exports.follow = function(req, res, next) {
-  console.log("Cookie: ", req.cookie)
 
   const username_to_follow = req.body.username;
   const follow = req.body.follow; // If false then unfollow
   if (follow === null) {
     follow = true;
   }
-  const username = req.payload.username; 
-  const _id = req.payload._id; //get _id from jwt
+  // const username = req.payload.username; 
+  // const _id = req.payload._id; //get _id from jwt
+  const username = req.user.username;
+  const _id = req.user._id;
 
   if (username_to_follow === username && follow) {
     return next(new Error("you cant follow yourself. loser. LOL. JK."));

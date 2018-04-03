@@ -75,7 +75,6 @@ exports.search = function (req, res, next) {
   // if true, return post by jwt user following
   if (only_following) {
     // find following for jwt user
-    console.log("Here: ", username)
     User.findOne({ username: req.payload.username }, function (err, user) {
       // list of following, only return if match any of these
       var following = user.following;
@@ -89,9 +88,6 @@ exports.search = function (req, res, next) {
       var following_filter = { $in: following }
 
       query["username"] = following_filter
-
-      console.log("Search Query: ", query);
-      
 
       Item.find(query, function (err, items) {
         if (err) { return next(err) }
@@ -116,7 +112,6 @@ exports.search = function (req, res, next) {
         ]
       }
     }
-    console.log("Search Query: ", query);
     // only following is false, return all
     Item.find(query, function (err, items) {
       if (err) { return next(err) }

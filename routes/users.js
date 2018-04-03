@@ -6,7 +6,8 @@ var secret = require("../secret");
 var jwt = require('express-jwt');
 var auth = jwt({
   secret: secret.mySecret,
-  userProperty: 'payload'
+  // userProperty: 'payload'
+  getToken: function (req) { return req.cookies['twitter-jwt']; }
 });
 
 /* GET users listing. */
