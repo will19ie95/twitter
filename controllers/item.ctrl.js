@@ -139,7 +139,12 @@ exports.deleteItem = function (req, res, next) {
 
   Item.deleteOne({ id: id }, function(err) {
     // NEEDS STATUS NOT 2XX
-    if (err) { res.next(err) }
+    if (err) { 
+      return res.status(500).json({
+        status: "error",
+        error: err.message
+      })
+    }
     
     return res.status(200).json({
       status: "200 OK",

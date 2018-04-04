@@ -12,7 +12,7 @@ exports.clientErrorHandler = function (err, req, res, next) {
 }
 
 exports.errorHandler = function (err, req, res, next) {
-  return res.status(500).json({
+  return res.json({
     status: "error",
     error: err.message
   })

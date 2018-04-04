@@ -2,43 +2,57 @@ const User = require("../models/user.model");
 const db = require("../db");
 const shortId = require("shortid");
 const moment = require("moment");
-const passport = require("passport");
+// const passport = require("passport");
 const nodemailer = require("../nodemailer");
 
 exports.login = function (req, res, next) {
-  passport.authenticate('login', function (err, user, info) {
-    if (err) { return next(err); }
-    if (!user) {
-      return next(info)
-    }
-    req.logIn(user, function (err) {
-      if (err) { return next(err); }
-      // generate jwt token
-      token = user.generateJwt();
-      // block some private user data
-      userData = {
-        username: user.username,
-        email: user.email,
-      }
+  const username = req.body.username
+  const password = req.body.password
 
-      res.cookie('twitter-jwt', token);
-      return res.json({
-        status: "OK",
-        info: info,
-        user: userData,
-        token: token
-      });
-    });
-  })(req, res, next);
+  User.findOne({ username: username }, function (err, user) {
+    if (err) { return next(err) }
+    if (!user) {
+      return next(new Error("Username not Found"))
+    }
+    if (!user.isVerified) {
+      return next(new Error("User not verified"))
+    }
+    user.checkPassword(password, function (err, isMatch) {
+      if (err) { return next(err) }
+      if (isMatch) {
+        // jwt auth token
+        token = user.generateJwt();
+        // block some private user data
+        userData = {
+          username: user.username,
+          email: user.email,
+        }
+        // set browser cookie
+        res.cookie('twitter-jwt', token);
+        return res.json({
+          status: "OK",
+          // message: "",
+          user: userData,
+          token: token
+        });
+
+      } else {
+        return next(new Error("Invalid Password/Username"))
+      }
+    })
+  })
 
 }
 // deprecated due to JWT
 exports.logout = function (req, res, next) {
-  if (req.user) {
-    req.logout();
+
+  const jwt = res.cookie("twitter-jwt");
+
+  if (jwt) {
+    res.clearCookie('twitter-jwt');
     return res.json({
       status: "OK",
-      message: "Logged Out"
+      message: "Successfully Logged Out"
     });
   } else {
     return next(new Error("No user logged in"))
@@ -65,7 +79,8 @@ exports.addUser = function (req, res, next) {
         nodemailer.sendMail(newUser.email, newUser.vToken);
         return res.json({
           status: "OK",
-          message: "Successfully created user",
+          // message: "Successfully created user",
+          message: "Verification Key Sent to " + newUser.email,
           user: newUser,
           vToken: newUser.vToken,
         })
@@ -92,7 +107,8 @@ exports.verify = function (req, res, next) {
       user.save(function (err, updatedUser) {
         if (err) { return next(err) }
         return res.json({
-          status: "OK"
+          status: "OK",
+          message: "Successfully Verified"
         })
       })
     } else {

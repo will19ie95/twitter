@@ -17,6 +17,7 @@ router.get('/', function (req, res, next) {
 
 // using JWT, server stateless no login
 router.post("/login", UserCtrl.login)
+router.post("/logout", UserCtrl.login)
 
 // USER
 router.get("/user/:username/followers", UserCtrl.getFollowers)
