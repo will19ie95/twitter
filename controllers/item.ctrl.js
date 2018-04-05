@@ -29,7 +29,7 @@ exports.getItem = function (req, res, next) {
     if (err) { return next(err) }
 
     if (!item) {
-      return next(new Error("Item with ID: <" + id + "> Not Found"))
+      return next(new Error("Item Not Found"))
     }
 
     return res.json({
@@ -107,12 +107,15 @@ exports.search = function (req, res, next) {
   } else {
     // append username constraint if exist
     if (username_filter) {
+      // Create username key in query object
       query["username"] = {
+        // append username_filter to search for it
         $in: [
           username_filter
         ]
       }
     }
+    
     // only following is false, return all
     Item.find(query, function (err, items) {
       if (err) { return next(err) }
@@ -136,7 +139,7 @@ exports.search = function (req, res, next) {
 exports.deleteItem = function (req, res, next) {
   
   const id = req.query.id || req.params[0];
-
+  
   Item.deleteOne({ id: id }, function(err) {
     // NEEDS STATUS NOT 2XX
     if (err) { 
