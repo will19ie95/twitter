@@ -200,7 +200,7 @@ exports.follow = function(req, res, next) {
     return next(new Error("UnauthorizedError: Bad JWT Token"));
   } else {
     const query = { _id: _id };
-    const update = follow ? { $push: { following: username_to_follow } } : { $pull: { following: username_to_follow } };
+    const update = follow ? { $addToSet: { following: username_to_follow } } : { $pull: { following: username_to_follow } };
     const options = { new: true }
     // update current user
     User.findOneAndUpdate(query, update, options, function(err, user) {
@@ -213,7 +213,7 @@ exports.follow = function(req, res, next) {
 
       // update the other user
       const query_2 = { username: username_to_follow };
-      const update_2 = follow ? { $push: { followers: username } } : { $pull: { followers: username } };
+      const update_2 = follow ? { $addToSet: { followers: username } } : { $pull: { followers: username } };
       const options = { new: true }
 
       User.findOneAndUpdate(query_2, update_2, options, function(err, user) {

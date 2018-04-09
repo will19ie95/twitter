@@ -19,19 +19,31 @@ const itemSchema = new Schema({
     default: 0
   },
   content: {
-    type: String,
-    default: "default content"
+    type: String
   },
   timestamp: {
     type: Date,
-    // or Date.now()?
-    // default: moment().unix(),
+    // set at creation
     required: true
   },
   id: {
     type: String,
     unique: true,
     default: shortId.generate
+  },
+  parent: {
+    type: String,
+  },
+  media: {
+    type: [String]
+  },
+  childType: {
+    type: String,
+    // null if not a child item, set otherwise.
+    default: null
+  },
+  liked_by: {
+    type: [String]
   }
 });
 

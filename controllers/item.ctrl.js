@@ -6,11 +6,15 @@ const moment = require("moment");
 exports.addItem = function (req, res, next) {
   const username = req.user.username;
   const content = req.body.content;
+  const parent  = req.body.parent;
+  const childType = req.body.childType || null;
 
   const newItem = new Item({
     username: username,
     content: content,
-    timestamp: moment().unix()
+    timestamp: moment().unix(),
+    parent: parent,
+    childType: childType
   })
   newItem.save(err => {
     if (err) { return next(err) }
@@ -18,7 +22,7 @@ exports.addItem = function (req, res, next) {
       status: "OK",
       message: "Successfully created Item",
       id: newItem.id,
-      item: newItem,
+      item: newItem
     })
   });
 }
@@ -27,38 +31,28 @@ exports.getItem = function (req, res, next) {
 
   Item.findOne({ id: id }, function (err, item) {
     if (err) { return next(err) }
-
-    if (!item) {
-      return next(new Error("Item Not Found"))
-    }
-
+    if (!item) { return next(new Error("Item Not Found")) }
     return res.json({
       status: "OK",
       message: "Item Found",
       item: item
     })
-
   })
 }
 exports.search = function (req, res, next) {
+  // req.user populated by jwt cookie
+  const username = req.user.username // curr user
+  const timestamp = moment().unix(req.body.timestamp) || moment().unix(); //default time is NOW if none provided
+  const query_string  = req.body.q;
+  const username_filter = req.body.username;
+  const rank = req.body.rank === "time" ? "time": "interest"; // order return item by "time" or "interest", default "interest".
+  const parent = req.body.parent || ""; // default none
+  const hasMedia = (req.body.hasMedia !== false ) ? true : false;; //default true
+  const only_following = (req.body.following !== false) ? true : false; // default true 
 
-  // const username = req.payload.username
-  const username = req.user.username
+  var limit = req.body.limit || 25;       // default 25 if none provided
+  limit = (limit > 100) ? 100 : limit;      // limit to 100
 
-  const timestamp = moment().unix(req.body.timestamp) || moment().unix();
-  const query_string  = req.body.q
-  const username_filter = req.body.username
-  var only_following = req.body.following //default true
-  var limit = req.body.limit || 25; //default 25, max 100
-
-  if (limit > 100) {
-    limit = 100 // max 100
-  }
-
-  if (only_following !== false) {
-    only_following = true; //default true
-  }
-  
   // content: /query_string/i,
   var query = { 
     timestamp: { $lte: timestamp }
@@ -71,7 +65,6 @@ exports.search = function (req, res, next) {
       "$options": "i" // ignore cases
     }    
   }
-  
 
   // if true, return post by jwt user following
   if (only_following) {
@@ -93,15 +86,11 @@ exports.search = function (req, res, next) {
       Item.find(query, function (err, items) {
         if (err) { return next(err) }
         if (!items) { return next(new Error("No Items found")) }
-        if (items) {
-          res.json({
-            status: "OK",
-            message: "Found Items",
-            items: items.slice(0, limit)
-          })
-        } else {
-          return res.next(new Error("No Items Found"))
-        }
+        return res.json({
+          status: "OK",
+          message: "Found Items",
+          items: items.slice(0, limit)
+        })
       })
     })
   } else {
@@ -120,26 +109,21 @@ exports.search = function (req, res, next) {
     Item.find(query, function (err, items) {
       if (err) { return next(err) }
       if (!items) { return next(new Error("No Items found")) }
-      if (items) {
-        res.json({
-          status: "OK",
-          message: "Found Items",
-          items: items.slice(0, limit)
-        })
-      } else {
-        return res.next(new Error("No Items Found"))
-      }
+      return res.json({
+        status: "OK",
+        message: "Found Items",
+        items: items.slice(0, limit)
+      })
     })
   }
-
-
-  
-
 }
 exports.deleteItem = function (req, res, next) {
   
   const id = req.query.id || req.params[0];
-  
+
+  // delete associated media files...first or later
+
+  // delete item
   Item.deleteOne({ id: id }, function(err) {
     // NEEDS STATUS NOT 2XX
     if (err) { 
@@ -157,4 +141,20 @@ exports.deleteItem = function (req, res, next) {
   })
 
 
+}
+exports.likeItem = function (req, res ,next) {
+  const username = req.user.username;
+  const user_id = req.user._id;
+  const item_id = req.params['id'];
+  const like = (req.body.like !== false) ? true : false;
+  const query = { id : item_id };
+  const update = like ? { $addToSet: { liked_by: username } } : { $pull: { liked_by: username } };
+  Item.findOneAndUpdate(query, update, (err, updated_item) => {
+    if (err) { return next(err) }
+    if (!updated_item) { return next(new Error("Failed to like item with query: ", query)) }
+    return res.json({
+      status: "OK",
+      message: "Successfully updated like for item: " + item_id
+    })
+  })
 } 

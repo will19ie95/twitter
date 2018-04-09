@@ -6,7 +6,6 @@ var secret = require("../secret");
 var jwt = require('express-jwt');
 var auth = jwt({
   secret: secret.mySecret,
-  // userProperty: 'payload'
   getToken: function (req) { return req.cookies['twitter-jwt']; }
 });
 
@@ -28,6 +27,7 @@ router.post("/adduser", UserCtrl.addUser)
 router.post("/verify", UserCtrl.verify)
 
 // ITEM
+router.post("/item/:id/like", auth, ItemCtrl.likeItem) // /item/:id
 router.get("/item/:id", ItemCtrl.getItem) // /item/:id
 router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 router.post("/search", auth, ItemCtrl.search)
