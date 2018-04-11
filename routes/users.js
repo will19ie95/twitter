@@ -37,6 +37,7 @@ router.post("/search", auth, ItemCtrl.search)
 router.post("/additem", auth, ItemCtrl.addItem)
 
 // media
-router.post("/addmedia", auth, upload.single("contents"), MediaCtrl.addMedia);
+router.post("/addmedia", upload.single("contents"), MediaCtrl.addMedia);
+router.get("/getmedia/:fileId", MediaCtrl.getMedia)
 
 module.exports = router;
