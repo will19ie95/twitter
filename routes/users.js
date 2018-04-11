@@ -1,10 +1,13 @@
-var express = require('express');
-var router = express.Router();
-var UserCtrl = require("../controllers/user.ctrl")
-var ItemCtrl = require("../controllers/item.ctrl")
-var secret = require("../secret");
-var jwt = require('express-jwt');
-var auth = jwt({
+const express = require('express');
+const router = express.Router();
+const UserCtrl = require("../controllers/user.ctrl")
+const ItemCtrl = require("../controllers/item.ctrl")
+const MediaCtrl = require("../controllers/media.ctrl")
+const multer = require('multer')
+const upload = multer();
+const secret = require("../secret");
+const jwt = require('express-jwt');
+const auth = jwt({
   secret: secret.mySecret,
   getToken: function (req) { return req.cookies['twitter-jwt']; }
 });
@@ -33,5 +36,7 @@ router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 router.post("/search", auth, ItemCtrl.search)
 router.post("/additem", auth, ItemCtrl.addItem)
 
+// media
+router.post("/addmedia", auth, upload.single("contents"), MediaCtrl.addMedia);
 
 module.exports = router;

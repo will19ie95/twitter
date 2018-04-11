@@ -118,10 +118,9 @@ exports.search = function (req, res, next) {
   }
 }
 exports.deleteItem = function (req, res, next) {
-  
   const id = req.query.id || req.params[0];
-
   // delete associated media files...first or later
+  // FIX ME
 
   // delete item
   Item.deleteOne({ id: id }, function(err) {
@@ -132,12 +131,10 @@ exports.deleteItem = function (req, res, next) {
         error: err.message
       })
     }
-    
     return res.status(200).json({
       status: "200 OK",
       message: "Successfully DELETED Item with id: " + id
     })
-    
   })
 
 
@@ -147,6 +144,7 @@ exports.likeItem = function (req, res ,next) {
   const user_id = req.user._id;
   const item_id = req.params['id'];
   const like = (req.body.like !== false) ? true : false;
+  
   const query = { id : item_id };
   const update = like ? { $addToSet: { liked_by: username } } : { $pull: { liked_by: username } };
   Item.findOneAndUpdate(query, update, (err, updated_item) => {
@@ -157,4 +155,4 @@ exports.likeItem = function (req, res ,next) {
       message: "Successfully updated like for item: " + item_id
     })
   })
-} 
+}
