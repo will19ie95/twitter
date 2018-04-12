@@ -8,10 +8,10 @@ exports.addMedia = function (req, res, next) {
 
   const filename = req.file.originalname
   const mimetype = req.file.mimetype
-  const file = req.file.buffer
+  const buffer = req.file.buffer
   const fileId = shortId.generate()
 
-  const base64 = Buffer.from(file).toString('base64')
+  const base64 = Buffer.from(buffer).toString('base64')
   const query = 'insert into media (fileId, filename, mimetype, contents) values (?, ?, ?, textAsBlob(?))'
   const values = [fileId, filename, mimetype, base64]
 
@@ -33,8 +33,6 @@ exports.getMedia = function (req, res, next) {
   client.execute(query, values, { prepare: true }, (err, result) => {
     if (err) { return next(err) }
     if (!result) { return next(new Error("File Not Found."))}
-    
-    console.log(result.rows[0])
     const file = result.rows[0];
 
     const binary = file.contents
