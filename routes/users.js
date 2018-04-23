@@ -12,6 +12,7 @@ const auth = jwt({
   getToken: function (req) { return req.cookies['twitter-jwt']; }
 });
 
+
 /* GET users listing. */
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
@@ -31,10 +32,15 @@ router.post("/verify", UserCtrl.verify)
 
 // ITEM
 router.post("/item/:id/like", auth, ItemCtrl.likeItem) // /item/:id
-router.get("/item/:id", ItemCtrl.getItem) // /item/:id
-router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 router.post("/search", auth, ItemCtrl.search)
 router.post("/additem", auth, ItemCtrl.addItem)
+router.get("/item/:id", ItemCtrl.getItem) // /item/:id
+router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
+
+// AMQP Client Request.
+// app.post("/item/:id/like", auth, Amqp.likeItem) // /item/:id
+// app.post("/search", auth, Amqp.search)
+// app.post("/additem", auth, Amqp.addItem)
 
 // media
 router.post("/addmedia", upload.single("contents"), MediaCtrl.addMedia);

@@ -6,6 +6,7 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "amqplib": "^0.5.2",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.18.2",
     "cassandra-driver": "^3.4.1",

@@ -59,14 +59,11 @@ exports.logout = function (req, res, next) {
   }
 }
 exports.addUser = function (req, res, next) {
-  const user = new User();
-
-  user.email = req.body.email;
-
-  User.findOne({ email: user.email }, function (err, user) {
+  const email = req.body.email;
+  User.findOne({ email: email }, function (err, user) {
     if (err) { return next(err) }
     if (user) {
-      return next(new Error("Email already exists!"))
+      return next(new Error("Email already in use!"))
     } else {
       const newUser = new User();
       newUser.username = req.body.username;
@@ -79,10 +76,9 @@ exports.addUser = function (req, res, next) {
         nodemailer.sendMail(newUser.email, newUser.vToken);
         return res.json({
           status: "OK",
-          // message: "Successfully created user",
-          message: "Verification Key Sent to " + newUser.email,
-          user: newUser,
+          message: "Successfully created user! Verification Key Sent to " + newUser.email,
           vToken: newUser.vToken,
+          // user: newUser,
         })
       })
     }
