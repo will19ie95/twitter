@@ -32,7 +32,7 @@ exports.addItem = function (req, res, next) {
   newItem.save(err => {
     if (err) { return next(err) }
     // UPDATE ELASTIC SEARCH
-    id_string = JSON.parse(JSON.stringify(newItem._id))
+    const id_string = JSON.parse(JSON.stringify(newItem._id))
     client.index({
       index: "twitter",
       type: "items",
