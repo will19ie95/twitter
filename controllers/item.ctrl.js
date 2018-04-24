@@ -6,7 +6,7 @@ const elasticsearch = require('elasticsearch');
 const client = new elasticsearch.Client({
   // host: '192.168.1.44:9200',
   host: '130.245.168.171:9200',
-  // log: 'trace'
+  log: 'trace'
 });
 // client.ping({
 //   // ping usually has a 3000ms timeout
@@ -31,12 +31,34 @@ exports.addItem = function (req, res, next) {
   })
   newItem.save(err => {
     if (err) { return next(err) }
-    return res.json({
-      status: "OK",
-      message: "Successfully created Item",
-      id: newItem.id,
-      item: newItem
-    })
+    // UPDATE ELASTIC SEARCH
+    id_string = JSON.parse(JSON.stringify(newItem._id))
+    client.index({
+      index: "twitter",
+      type: "items",
+      id: id_string,
+      body: {
+        "username": newItem.username,
+        "liked_by": newItem.liked_by,
+        "media": newItem.media,
+        "childType": newItem.childType,
+        "retweeted": newItem.retweeted,
+        "content": newItem.content,
+        "__v": newItem._v,
+        "timestamp": newItem.timestamp,
+        "property": newItem.property,
+        "id": newItem.id,
+      }
+    }, function(err, resp, status){
+      // console.log("Added " + newItem._id + " to ElasticSearch")
+      return res.json({
+        status: "OK",
+        message: "Successfully created Item",
+        id: newItem.id,
+        item: newItem
+      })
+    });
+    
   });
 }
 exports.getItem = function (req, res, next) {
@@ -190,52 +212,59 @@ exports.elasticSearch = function (req, res, next) {
 
   // content: /query_string/i,
   var query = {
-    timestamp: { $lte: timestamp }
+    "bool" : {
+      "must": [{
+        "match": {
+          // must match search string.
+          "content": query_string 
+        }
+      }]
+    }
+  };
+
+  if (username_filter) {
+    // must match username string.
+    query.bool.must.push({
+      "match": {
+        "username": username_filter
+      }
+    })
   }
 
   var search_body = {
     sort: [
       { timestamp: { "order": "desc" } }
-    ]
+    ],
+    query: query
   }
 
-  if (query_string) {
-    search_body["query"] = {
-      match: {
-        content: query_string
-      }
+  client.search({
+    index: 'twitter',
+    type: 'items',
+    body: search_body
+  }).then(function (resp) {
+    var hits = resp.hits.hits;
+    // console.log("ElasticSearch Hit: ")
+    // console.log(hits)
+
+    // hits[x]._source
+    function reduceItem(hit) {
+      const item = hit._source;
+      item._id = hit._id;
+      return item;
     }
-  }
 
-  setTimeout(() => {
-    client.search({
-      index: 'twitter',
-      type: 'items',
-      body: search_body
-    }).then(function (resp) {
-      var hits = resp.hits.hits;
-      // console.log("ElasticSearch Hit: ")
-      // console.log(hits)
+    // map reduce items from elastic hit result
+    const items = hits.map(reduceItem)
 
-      // hits[x]._source
-      function reduceItem(hit) {
-        const item = hit._source;
-        item._id = hit._id;
-        return item;
-      }
-
-      // map reduce items from elastic hit result
-      const items = hits.map(reduceItem)
-
-      return res.json({
-        status: "OK",
-        message: "Elastic Search Found Items",
-        items: items.slice(0, limit)
-        // hits: hits.slice(0, limit)
-      })
-    }, function (err) {
-      if (err) { return next(err) }
-    });
-  }, 1000);
+    return res.json({
+      status: "OK",
+      message: "Elastic Search Found Items",
+      items: items.slice(0, limit),
+      hits: hits.slice(0, limit)
+    })
+  }, function (err) {
+    if (err) { return next(err) }
+  });
 
 }
