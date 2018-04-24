@@ -193,16 +193,24 @@ exports.elasticSearch = function (req, res, next) {
     timestamp: { $lte: timestamp }
   }
 
+  var search_body = {
+    sort: [
+      { timestamp: { "order": "desc" } }
+    ]
+  }
+
+  if (query_string) {
+    search_body["query"] = {
+      match: {
+        content: query_string
+      }
+    }
+  }
+
   client.search({
     index: 'twitter',
     type: 'items',
-    body: {
-      query: {
-        match: {
-          content: query_string
-        }
-      }
-    }
+    body: search_body
   }).then(function (resp) {
     var hits = resp.hits.hits;
     // console.log("ElasticSearch Hit: ")

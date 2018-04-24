@@ -32,7 +32,8 @@ router.post("/verify", UserCtrl.verify)
 
 // ITEM
 router.post("/item/:id/like", auth, ItemCtrl.likeItem) // /item/:id
-router.post("/search", auth, ItemCtrl.search, ItemCtrl.elasticSearch)
+// router.post("/search", auth, ItemCtrl.search, ItemCtrl.elasticSearch)
+router.post("/search", auth, ItemCtrl.elasticSearch)
 // router.post("/elasticsearch", auth, ItemCtrl.elasticSearch)
 router.post("/additem", auth, ItemCtrl.addItem)
 router.get("/item/:id", ItemCtrl.getItem) // /item/:ida
