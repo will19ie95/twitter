@@ -44,6 +44,6 @@ router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 
 // media
 router.post("/addmedia", upload.single("contents"), MediaCtrl.addMedia);
-router.get("/getmedia/:fileId", MediaCtrl.getMedia)
+router.get("/media/:fileId", MediaCtrl.getMedia)
 
 module.exports = router;
