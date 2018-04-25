@@ -194,7 +194,6 @@ exports.elasticSearch = function (req, res, next) {
 
   console.log(username + " Searching with ")
   console.log(req.body)
-  console.log("limit: ", limit)
 
   // content: /query_string/i,
   var query = {
@@ -270,8 +269,8 @@ exports.elasticSearch = function (req, res, next) {
         body: search_body
       }).then(function (resp) {
         var hits = resp.hits.hits;
-        // console.log("ElasticSearch Hit: ")
-        // console.log(hits)
+        console.log("ElasticSearch Hit: ")
+        console.log(hits)
 
         // hits[x]._source
         function reduceItem(hit) {
