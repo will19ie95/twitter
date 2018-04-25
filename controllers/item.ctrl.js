@@ -51,13 +51,16 @@ exports.addItem = function (req, res, next) {
       }
     }, function(err, resp, status){
       // console.log("Added " + newItem._id + " to ElasticSearch")
-      return res.json({
-        status: "OK",
-        message: "Successfully created Item",
-        id: newItem.id,
-        item: newItem
-      })
+      
     });
+
+    return res.json({
+      status: "OK",
+      message: "Successfully created Item",
+      id: newItem.id,
+      item: newItem
+    })
+    
   });
 }
 exports.getItem = function (req, res, next) {
