@@ -225,7 +225,7 @@ exports.elasticSearch = function (req, res, next) {
     User.findOne({ username: username }, function (err, user) {
       if (err) { return next(err) }
       if (!user) {
-        return next(new Error("Username not Found"))
+        return next(new Error("User not Found"))
       }
 
       // list of following, only return if match any of these
