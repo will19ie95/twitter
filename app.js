@@ -45,7 +45,7 @@ app.use(function(req, res, next) {
 app.use('/', users);
 app.use('/api', users);
 
-app.use(errorHandlers.logErrors)
+// app.use(errorHandlers.logErrors)
 // app.use(errorHandlers.clientErrorHandler)
 app.use(errorHandlers.errorHandler)
 
