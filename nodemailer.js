@@ -13,7 +13,9 @@ const moment = require("moment")
 const transporter = nodemailer.createTransport({
   host: 'localhost',
   port: 25,
-
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 const sendMail = function(email, vToken) {
