@@ -241,7 +241,6 @@ exports.elasticSearch = function (req, res, next) {
       // turn into query style { "username": }
       following_list = [];
       for (var i = 0; i < following.length; i++ ){
-        console.log("Following: ", following[i])
         following_list.push({
           "match": {
             "username": following[i]
