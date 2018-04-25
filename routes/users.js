@@ -45,7 +45,12 @@ router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 // app.post("/additem", auth, Amqp.addItem)
 
 // media
-router.post("/addmedia", function(req, res, next) { if(req.body.content) { next() } }, upload.single("contents"), MediaCtrl.addMedia);
+router.post("/addmedia", function(req, res, next) { if(!req.body.content) { 
+  return res.json({
+    status: "OK",
+    message: "No Media Attached",
+  })
+ } }, upload.single("contents"), MediaCtrl.addMedia);
 router.get("/media/:fileId", MediaCtrl.getMedia)
 
 module.exports = router;
