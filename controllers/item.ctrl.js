@@ -178,8 +178,7 @@ exports.likeItem = function (req, res ,next) {
   })
 }
 exports.elasticSearch = function (req, res, next) {
-  console.log(req.user.username + " Searching with ")
-  console.log(req.body)
+  
   // req.user populated by jwt cookie
   const username = req.user.username // curr user
   const timestamp = moment().unix(req.body.timestamp) || moment().unix(); //default time is NOW if none provided
@@ -192,6 +191,10 @@ exports.elasticSearch = function (req, res, next) {
 
   var limit = req.body.limit || 25;       // default 25 if none provided
   limit = (limit > 100) ? 100 : limit;      // limit to 100
+
+  console.log(username + " Searching with ")
+  console.log(req.body)
+  console.log("limit: ", limit)
 
   // content: /query_string/i,
   var query = {
