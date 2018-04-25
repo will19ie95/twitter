@@ -178,6 +178,8 @@ exports.likeItem = function (req, res ,next) {
   })
 }
 exports.elasticSearch = function (req, res, next) {
+  console.log("Searching with ")
+  console.log(res.body)
   // req.user populated by jwt cookie
   const username = req.user.username // curr user
   const timestamp = moment().unix(req.body.timestamp) || moment().unix(); //default time is NOW if none provided
