@@ -232,10 +232,10 @@ exports.elasticSearch = function (req, res, next) {
       var following = user.following;
 
       // append username constraint if exist
-      if (username_filter) {
-        // possible duplication, fix me
-        following.push(username_filter)
-      }
+      // if (username_filter) {
+      //   // possible duplication, fix me
+      //   following.push(username_filter)
+      // }
 
       
       // turn into query style { "username": }
