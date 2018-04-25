@@ -4,7 +4,6 @@ const shortId = require("shortid");
 const moment = require("moment");
 // const passport = require("passport");
 const nodemailer = require("../nodemailer");
-// const sendmail = require("../sendmail");
 
 exports.login = function (req, res, next) {
   const username = req.body.username
@@ -75,7 +74,6 @@ exports.addUser = function (req, res, next) {
         if (err) { return next(err) }
         // send vToken email verification
         nodemailer.sendMail(newUser.email, newUser.vToken);
-        // sendmail.sendMail(newUser.email, newUser.vToken);
         return res.json({
           status: "OK",
           message: "Successfully created user! Verification Key Sent to " + newUser.email,

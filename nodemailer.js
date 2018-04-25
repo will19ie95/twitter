@@ -1,15 +1,6 @@
 const nodemailer = require("nodemailer");
 const moment = require("moment")
 
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 587,
-//   auth: {
-//     user: "twitterclonezzz",
-//     pass: "will19ie95"
-//   }
-// });
-
 const transporter = nodemailer.createTransport({
   host: 'localhost',
   port: 25,
