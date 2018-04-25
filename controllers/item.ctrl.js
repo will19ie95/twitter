@@ -298,6 +298,8 @@ exports.elasticSearch = function (req, res, next) {
     })
   } else {
     var search_body = {
+      from: 0,
+      size: 1000,
       sort: [
         { timestamp: { "order": "desc" } }
       ],
