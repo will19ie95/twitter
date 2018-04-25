@@ -192,8 +192,8 @@ exports.elasticSearch = function (req, res, next) {
   var limit = req.body.limit || 25;       // default 25 if none provided
   limit = (limit > 100) ? 100 : limit;      // limit to 100
 
-  console.log(username + " Searching with ")
-  console.log(req.body)
+  // console.log(username + " Searching with ")
+  // console.log(req.body)
 
   // content: /query_string/i,
   var query = {
@@ -271,8 +271,8 @@ exports.elasticSearch = function (req, res, next) {
         body: search_body
       }).then(function (resp) {
         var hits = resp.hits.hits;
-        console.log("ElasticSearch Hit: ")
-        console.log(hits)
+        // console.log("ElasticSearch Hit: ")
+        // console.log(hits)
 
         // hits[x]._source
         function reduceItem(hit) {
@@ -283,7 +283,7 @@ exports.elasticSearch = function (req, res, next) {
 
         // map reduce items from elastic hit result
         const items = hits.map(reduceItem)
-        console.log("Items Found: " + items.length)
+        // console.log("Items Found: " + items.length)
 
         return res.json({
           status: "OK",
