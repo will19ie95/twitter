@@ -223,6 +223,10 @@ exports.elasticSearch = function (req, res, next) {
     // get followings
 
     User.findOne({ username: username }, function (err, user) {
+      if (err) { return next(err) }
+      if (!user) {
+        return next(new Error("Username not Found"))
+      }
       // list of following, only return if match any of these
       var following = user.following;
 
