@@ -257,11 +257,12 @@ exports.elasticSearch = function (req, res, next) {
       // });
       
       var search_body = {
+        "from": 0,
+        "size": 1000,
         sort: [
           { timestamp: { "order": "desc" } }
         ],
-        query: query,
-        size: 1000
+        query: query
       }
 
       client.search({
@@ -300,8 +301,7 @@ exports.elasticSearch = function (req, res, next) {
       sort: [
         { timestamp: { "order": "desc" } }
       ],
-      query: query,
-      size: 1000
+      query: query
     }
 
     client.search({
