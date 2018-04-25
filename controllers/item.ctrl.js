@@ -178,7 +178,7 @@ exports.likeItem = function (req, res ,next) {
   })
 }
 exports.elasticSearch = function (req, res, next) {
-  console.log("Searching with ")
+  console.log(req.user.username + " Searching with ")
   console.log(req.body)
   // req.user populated by jwt cookie
   const username = req.user.username // curr user
