@@ -251,9 +251,9 @@ exports.elasticSearch = function (req, res, next) {
       
       query.bool.should = following_list;
 
-      query.bool.should.push({
-        "minimum_should_match": 1
-      });
+      // query.bool.should.push({
+      //   "minimum_should_match": 1
+      // });
       
       var search_body = {
         sort: [
