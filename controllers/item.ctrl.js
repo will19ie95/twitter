@@ -227,6 +227,7 @@ exports.elasticSearch = function (req, res, next) {
       if (!user) {
         return next(new Error("Username not Found"))
       }
+
       // list of following, only return if match any of these
       var following = user.following;
 
