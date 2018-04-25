@@ -197,6 +197,7 @@ exports.elasticSearch = function (req, res, next) {
 
   // content: /query_string/i,
   var query = {
+    "size": 1000,
     "bool" : {
       "must": [],
       "should": []      
