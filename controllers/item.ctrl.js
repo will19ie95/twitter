@@ -252,6 +252,6 @@ exports.elasticSearch = function (req, res, next) {
     }, function (err) {
       if (err) { return next(err) }
     });
-  }, 2000);
+  }, 3000);
 
 }
