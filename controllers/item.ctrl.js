@@ -279,6 +279,7 @@ exports.elasticSearch = function (req, res, next) {
 
         // map reduce items from elastic hit result
         const items = hits.map(reduceItem)
+        console.log("Items Found: " + items.length)
 
         return res.json({
           status: "OK",
