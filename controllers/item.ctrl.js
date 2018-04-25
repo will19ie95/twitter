@@ -6,7 +6,7 @@ const elasticsearch = require('elasticsearch');
 const client = new elasticsearch.Client({
   // host: '192.168.1.44:9200',
   host: '130.245.168.171:9200',
-  log: 'trace'
+  // log: 'trace'
 });
 // client.ping({
 //   // ping usually has a 3000ms timeout
@@ -51,13 +51,15 @@ exports.addItem = function (req, res, next) {
       }
     }, function(err, resp, status){
       // console.log("Added " + newItem._id + " to ElasticSearch")
-      return res.json({
-        status: "OK",
-        message: "Successfully created Item",
-        id: newItem.id,
-        item: newItem
-      })
+      
     });
+
+    return res.json({
+      status: "OK",
+      message: "Successfully created Item",
+      id: newItem.id,
+      item: newItem
+    })
     
   });
 }
@@ -213,14 +215,18 @@ exports.elasticSearch = function (req, res, next) {
   // content: /query_string/i,
   var query = {
     "bool" : {
-      "must": [{
-        "match": {
-          // must match search string.
-          "content": query_string 
-        }
-      }]
+      "must": []
     }
   };
+
+  if (query_string) {
+    // must match search string.
+    query.bool.must.push({
+      "match": {
+        "content": query_string
+      }
+    })
+  }
 
   if (username_filter) {
     // must match username string.
