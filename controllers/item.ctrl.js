@@ -197,7 +197,6 @@ exports.elasticSearch = function (req, res, next) {
 
   // content: /query_string/i,
   var query = {
-    "size": 1000,
     "bool" : {
       "must": [],
       "should": []      
@@ -261,7 +260,8 @@ exports.elasticSearch = function (req, res, next) {
         sort: [
           { timestamp: { "order": "desc" } }
         ],
-        query: query
+        query: query,
+        size: 1000
       }
 
       client.search({
@@ -300,7 +300,8 @@ exports.elasticSearch = function (req, res, next) {
       sort: [
         { timestamp: { "order": "desc" } }
       ],
-      query: query
+      query: query,
+      size: 1000
     }
 
     client.search({
