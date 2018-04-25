@@ -223,33 +223,35 @@ exports.elasticSearch = function (req, res, next) {
     query: query
   }
 
-  client.search({
-    index: 'twitter',
-    type: 'items',
-    body: search_body
-  }).then(function (resp) {
-    var hits = resp.hits.hits;
-    // console.log("ElasticSearch Hit: ")
-    // console.log(hits)
+  setTimeout(() => {
+    client.search({
+      index: 'twitter',
+      type: 'items',
+      body: search_body
+    }).then(function (resp) {
+      var hits = resp.hits.hits;
+      // console.log("ElasticSearch Hit: ")
+      // console.log(hits)
 
-    // hits[x]._source
-    function reduceItem(hit) {
-      const item = hit._source;
-      item._id = hit._id;
-      return item;
-    }
+      // hits[x]._source
+      function reduceItem(hit) {
+        const item = hit._source;
+        item._id = hit._id;
+        return item;
+      }
 
-    // map reduce items from elastic hit result
-    const items = hits.map(reduceItem)
+      // map reduce items from elastic hit result
+      const items = hits.map(reduceItem)
 
-    return res.json({
-      status: "OK",
-      message: "Elastic Search Found Items",
-      items: items.slice(0, limit)
-      // hits: hits.slice(0, limit)
-    })
-  }, function (err) {
-    if (err) { return next(err) }
-  });
+      return res.json({
+        status: "OK",
+        message: "Elastic Search Found Items",
+        items: items.slice(0, limit)
+        // hits: hits.slice(0, limit)
+      })
+    }, function (err) {
+      if (err) { return next(err) }
+    });
+  }, 2000);
 
 }
