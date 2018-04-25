@@ -33,27 +33,6 @@ exports.addItem = function (req, res, next) {
     if (err) { return next(err) }
     // UPDATE ELASTIC SEARCH
     const id_string = JSON.parse(JSON.stringify(newItem._id))
-    client.index({
-      index: "twitter",
-      type: "items",
-      id: id_string,
-      body: {
-        "username": newItem.username,
-        "liked_by": newItem.liked_by,
-        "media": newItem.media,
-        "childType": newItem.childType,
-        "retweeted": newItem.retweeted,
-        "content": newItem.content,
-        "__v": newItem._v,
-        "timestamp": newItem.timestamp,
-        "property": newItem.property,
-        "id": newItem.id,
-      }
-    }, function(err, resp, status){
-      // console.log("Added " + newItem._id + " to ElasticSearch")
-      
-    });
-
     return res.json({
       status: "OK",
       message: "Successfully created Item",
