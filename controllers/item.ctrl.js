@@ -260,8 +260,8 @@ exports.elasticSearch = function (req, res, next) {
     return res.json({
       status: "OK",
       message: "Elastic Search Found Items",
-      items: items.slice(0, limit),
-      hits: hits.slice(0, limit)
+      items: items.slice(0, limit)
+      // hits: hits.slice(0, limit)
     })
   }, function (err) {
     if (err) { return next(err) }
