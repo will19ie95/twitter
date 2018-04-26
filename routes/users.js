@@ -48,4 +48,8 @@ router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 router.post("/addmedia", upload.single("contents"), MediaCtrl.addMedia);
 router.get("/media/:fileId", MediaCtrl.getMedia)
 
+router.get('*', function (req, res, next) {
+  res.render('index', { title: 'Forbidden. Nothing to see here' });
+});
+
 module.exports = router;
