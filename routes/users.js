@@ -52,4 +52,11 @@ router.get('*', function (req, res, next) {
   res.render('index', { title: 'Forbidden. Nothing to see here' });
 });
 
+router.post('*', function (req, res, next) {
+  return res.json({
+    status: "OK",
+    message: "Operation not supported",
+  })
+});
+
 module.exports = router;
