@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const moment = require("moment")
 
 const transporter = nodemailer.createTransport({
-  host: '192.168.1.9',
+  host: 'localhost',
   port: 25,
   tls: {
     rejectUnauthorized: false
