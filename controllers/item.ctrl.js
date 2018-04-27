@@ -4,8 +4,13 @@ const db = require("../db");
 const moment = require("moment");
 const elasticsearch = require('elasticsearch');
 const client = new elasticsearch.Client({
+
+  hosts: [
+    'http://192.168.1.9:9200',
+    'http://192.168.1.44:9200',
+    'http://192.168.1.45:9200',
+  ]
   // host: '192.168.1.44:9200',
-  host: '130.245.168.171:9200',
   // log: 'trace'
 });
 // client.ping({
