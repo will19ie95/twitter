@@ -45,7 +45,7 @@ router.get("/item", ItemCtrl.getItem) // /item?id=    Support or nah?
 // app.post("/additem", auth, Amqp.addItem)
 
 // media
-router.post("/addmedia", upload.single("contents"), MediaCtrl.addMedia);
+router.post("/addmedia", upload.single("content"), MediaCtrl.addMedia);
 router.get("/media/:fileId", MediaCtrl.getMedia)
 
 router.get('*', function (req, res, next) {
