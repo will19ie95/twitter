@@ -26,11 +26,15 @@ exports.addMedia = function (req, res, next) {
 
 exports.getMedia = function (req, res, next) {
   const fileId = req.query.fileId || req.params['fileId'];
+  if (fileId === undefined || fileId === "undefined") {
+     return next(new Error("File Not Found.")) 
+  }
   const query = 'select blobAsText(contents) as contents, mimetype, filename from media where fileId=?'
   // const query = 'select mimetype, filename from media where fileId=?'
   const values = [fileId]
 
   client.execute(query, values, { prepare: true }, (err, result) => {
+    
     if (err) { return next(err) }
     if (!result) { return next(new Error("File Not Found."))}
     const file = result.rows[0];
