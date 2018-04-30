@@ -96,7 +96,11 @@ exports.verify = function (req, res, next) {
     }
     // check user is not alredy verified 
     if (user.isVerified) {
-      return next(new Error("User is already verified"))
+      // return next(new Error("User is already verified"))
+      return res.json({
+        status: "OK",
+        message: "User is already verified"
+      })
     }
     if (key === "abracadabra" || key === user.vToken) {
       user.isVerified = true;
