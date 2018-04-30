@@ -263,7 +263,7 @@ exports.elasticSearch = function (req, res, next) {
       
       var search_body = {
         from: 0,
-        size: 1000,
+        size: 300,
         sort: [
           { timestamp: { "order": "desc" } }
         ],
