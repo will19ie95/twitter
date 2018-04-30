@@ -17,7 +17,7 @@ exports.addMedia = function (req, res, next) {
 
   client.execute(query, values, (err) => {
     if (err) { return next(err) }
-    res.json({
+    return res.json({
       status: "OK",
       message: "Successfully uploaded file: " + filename
     })
@@ -27,7 +27,11 @@ exports.addMedia = function (req, res, next) {
 exports.getMedia = function (req, res, next) {
   const fileId = req.query.fileId || req.params['fileId'];
   if (fileId === undefined || fileId === "undefined") {
-     return next(new Error("File Not Found.")) 
+    //  return next(new Error("File Not Found.")) 
+    return res.json({
+      status: "OK",
+      message: "File Not Found"
+    })
   }
   const query = 'select blobAsText(contents) as contents, mimetype, filename from media where fileId=?'
   // const query = 'select mimetype, filename from media where fileId=?'
