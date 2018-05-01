@@ -221,7 +221,7 @@ exports.elasticSearch = function (req, res, next) {
     // must match username string.
     query.bool.must.push({
       "match": {
-        "username": username_filter
+        "username": username_filter.toLowerCase()
       }
     })
   }
@@ -250,7 +250,7 @@ exports.elasticSearch = function (req, res, next) {
       for (var i = 0; i < following.length; i++ ){
         following_list.push({
           "match": {
-            "username": following[i]
+            "username": following[i].toLowerCase()
           }
         })
       }
