@@ -230,83 +230,41 @@ exports.elasticSearch = function (req, res, next) {
     })
   }
 
-  setTimeout(() => {
-    if (only_following) {
-      // get followings
+  if (only_following) {
+    // get followings
 
-      User.findOne({ username: username }, function (err, user) {
-        if (err) { return next(err) }
-        if (!user) {
-          return next(new Error("User not Found"))
-        }
+    User.findOne({ username: username }, function (err, user) {
+      if (err) { return next(err) }
+      if (!user) {
+        return next(new Error("User not Found"))
+      }
 
-        // list of following, only return if match any of these
-        var following = user.following;
+      // list of following, only return if match any of these
+      var following = user.following;
 
-        // append username constraint if exist
-        // if (username_filter) {
-        //   // possible duplication, fix me
-        //   following.push(username_filter)
-        // }
+      // append username constraint if exist
+      // if (username_filter) {
+      //   // possible duplication, fix me
+      //   following.push(username_filter)
+      // }
 
-
-        // turn into query style { "username": }
-        following_list = [];
-        for (var i = 0; i < following.length; i++) {
-          following_list.push({
-            "match": {
-              "username": following[i].toLowerCase()
-            }
-          })
-        }
-
-        query.bool.should = following_list;
-
-        // query.bool.should.push({
-        //   "minimum_should_match": 1
-        // });
-
-        var search_body = {
-          from: 0,
-          size: 1000,
-          sort: [
-            { timestamp: { "order": "desc" } }
-          ],
-          query: query
-        }
-
-        client.search({
-          index: 'twitter',
-          type: 'items',
-          body: search_body
-        }).then(function (resp) {
-          var hits = resp.hits.hits;
-          // console.log("ElasticSearch Hit: ")
-          // console.log(hits)
-
-          // hits[x]._source
-          function reduceItem(hit) {
-            const item = hit._source;
-            item._id = hit._id;
-            return item;
+      
+      // turn into query style { "username": }
+      following_list = [];
+      for (var i = 0; i < following.length; i++ ){
+        following_list.push({
+          "match": {
+            "username": following[i].toLowerCase()
           }
+        })
+      }
+      
+      query.bool.should = following_list;
 
-          // map reduce items from elastic hit result
-          const items = hits.map(reduceItem)
-          // console.log("Items Found: " + items.length)
-
-          return res.json({
-            status: "OK",
-            message: "Elastic Search Found Items",
-            items: items.slice(0, limit)
-            // hits: hits.slice(0, limit)
-          })
-        }, function (err) {
-          if (err) { return next(err) }
-        });
-
-      })
-    } else {
+      // query.bool.should.push({
+      //   "minimum_should_match": 1
+      // });
+      
       var search_body = {
         from: 0,
         size: 1000,
@@ -334,6 +292,7 @@ exports.elasticSearch = function (req, res, next) {
 
         // map reduce items from elastic hit result
         const items = hits.map(reduceItem)
+        // console.log("Items Found: " + items.length)
 
         return res.json({
           status: "OK",
@@ -344,8 +303,47 @@ exports.elasticSearch = function (req, res, next) {
       }, function (err) {
         if (err) { return next(err) }
       });
+
+    })
+  } else {
+    var search_body = {
+      from: 0,
+      size: 1000,
+      sort: [
+        { timestamp: { "order": "desc" } }
+      ],
+      query: query
     }
-  }, 1000);
+
+    client.search({
+      index: 'twitter',
+      type: 'items',
+      body: search_body
+    }).then(function (resp) {
+      var hits = resp.hits.hits;
+      // console.log("ElasticSearch Hit: ")
+      // console.log(hits)
+
+      // hits[x]._source
+      function reduceItem(hit) {
+        const item = hit._source;
+        item._id = hit._id;
+        return item;
+      }
+
+      // map reduce items from elastic hit result
+      const items = hits.map(reduceItem)
+
+      return res.json({
+        status: "OK",
+        message: "Elastic Search Found Items",
+        items: items.slice(0, limit)
+        // hits: hits.slice(0, limit)
+      })
+    }, function (err) {
+      if (err) { return next(err) }
+    });
+  }
 
   
 
