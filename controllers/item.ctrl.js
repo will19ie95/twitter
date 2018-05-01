@@ -221,15 +221,6 @@ exports.elasticSearch = function (req, res, next) {
     })
   }
 
-  if (username_filter) {
-    // must match username string.
-    query.bool.must.push({
-      "match": {
-        "username": username_filter.toLowerCase()
-      }
-    })
-  }
-
   if (only_following) {
     // get followings
 
@@ -251,6 +242,16 @@ exports.elasticSearch = function (req, res, next) {
       
       // turn into query style { "username": }
       following_list = [];
+      
+      // add username
+      if (username_filter) {
+        following_list.push({
+          "match": {
+            "username": username.toLowerCase()
+          }
+        })
+      }
+
       for (var i = 0; i < following.length; i++ ){
         following_list.push({
           "match": {
@@ -306,6 +307,16 @@ exports.elasticSearch = function (req, res, next) {
 
     })
   } else {
+
+    if (username_filter) {
+      // must match username string.
+      query.bool.should.push({
+        "match": {
+          "username": username_filter.toLowerCase()
+        }
+      })
+    }
+
     var search_body = {
       from: 0,
       size: 1000,
