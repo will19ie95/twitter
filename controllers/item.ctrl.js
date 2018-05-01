@@ -183,6 +183,10 @@ exports.likeItem = function (req, res ,next) {
   })
 }
 exports.elasticSearch = function (req, res, next) {
+
+  console.log("Search: ")
+  console.log(req.user.username)
+  console.log(req.body)
   
   // req.user populated by jwt cookie
   const username = req.user.username // curr user
@@ -270,7 +274,6 @@ exports.elasticSearch = function (req, res, next) {
         query: query
       }
 
-      console.log("Searching: ", search_body)
       client.search({
         index: 'twitter',
         type: 'items',
@@ -305,14 +308,13 @@ exports.elasticSearch = function (req, res, next) {
   } else {
     var search_body = {
       from: 0,
-      size: 200,
+      size: 1000,
       sort: [
         { timestamp: { "order": "desc" } }
       ],
       query: query
     }
 
-    console.log("Searching: ", search_body)
     client.search({
       index: 'twitter',
       type: 'items',
