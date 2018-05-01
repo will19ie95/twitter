@@ -263,13 +263,14 @@ exports.elasticSearch = function (req, res, next) {
       
       var search_body = {
         from: 0,
-        size: 300,
+        size: 1000,
         sort: [
           { timestamp: { "order": "desc" } }
         ],
         query: query
       }
 
+      console.log("Searching: ", search_body)
       client.search({
         index: 'twitter',
         type: 'items',
@@ -311,6 +312,7 @@ exports.elasticSearch = function (req, res, next) {
       query: query
     }
 
+    console.log("Searching: ", search_body)
     client.search({
       index: 'twitter',
       type: 'items',
